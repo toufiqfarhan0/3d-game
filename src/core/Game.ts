@@ -44,6 +44,9 @@ export class Game {
     this.startRenderLoop();
   }
 
+  private ambientLight!: THREE.AmbientLight;
+  private hemiLight!: THREE.HemisphereLight;
+
   private initThreeJS() {
     this.scene = new THREE.Scene();
     this.scene.background = new THREE.Color(0x050713);
@@ -65,11 +68,11 @@ export class Game {
     this.renderer.toneMappingExposure = 1.25;
 
     // Ambient Lighting & Hemisphere Cyan/Magenta Sci-Fi Fill Light
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.85);
-    this.scene.add(ambientLight);
+    this.ambientLight = new THREE.AmbientLight(0xffffff, 0.85);
+    this.scene.add(this.ambientLight);
 
-    const hemiLight = new THREE.HemisphereLight(0x00f0ff, 0xaa00ff, 0.6);
-    this.scene.add(hemiLight);
+    this.hemiLight = new THREE.HemisphereLight(0x00f0ff, 0xaa00ff, 0.6);
+    this.scene.add(this.hemiLight);
 
     const dirLight = new THREE.DirectionalLight(0xffffff, 1.4);
     dirLight.position.set(20, 40, 20);
@@ -86,6 +89,28 @@ export class Game {
     (this as any).dirLight = dirLight;
   }
 
+  public setTheme(theme: 'dark' | 'light') {
+    const isLight = theme === 'light';
+    const bgHex = isLight ? 0xe2e8f0 : 0x050713;
+
+    this.scene.background = new THREE.Color(bgHex);
+    this.scene.fog = new THREE.FogExp2(bgHex, 0.006);
+
+    if (this.ambientLight) {
+      this.ambientLight.intensity = isLight ? 1.0 : 0.85;
+    }
+
+    if (this.hemiLight) {
+      this.hemiLight.color.setHex(isLight ? 0xffffff : 0x00f0ff);
+      this.hemiLight.groundColor.setHex(isLight ? 0x64748b : 0xaa00ff);
+      this.hemiLight.intensity = isLight ? 0.9 : 0.6;
+    }
+
+    if (this.trackMgr) {
+      this.trackMgr.setTheme(theme);
+    }
+  }
+
   private initManagers() {
     this.soundMgr = SoundManager.getInstance();
     this.scoreMgr = new ScoreManager();
@@ -100,6 +125,9 @@ export class Game {
     this.trackMgr = new TrackManager(this.scene);
     this.particleMgr = new ParticleManager(this.scene);
     this.uiMgr = new UIManager(this.scoreMgr, this.shopMgr, this.soundMgr);
+
+    // Apply saved theme to 3D scene
+    this.setTheme(this.uiMgr.currentTheme);
 
     // Bind Mobile Touch Buttons
     this.inputMgr.bindTouchButtons('touch-left', 'touch-right', 'touch-jump', 'touch-slide');
@@ -156,6 +184,17 @@ export class Game {
       this.soundMgr.toggleMute();
       this.uiMgr.updateStartScreen();
     });
+
+    // Theme Toggle Buttons
+    const handleThemeToggle = () => {
+      this.uiMgr.toggleTheme((newTheme) => {
+        this.setTheme(newTheme);
+      });
+    };
+
+    document.getElementById('btn-toggle-theme')?.addEventListener('click', handleThemeToggle);
+    document.getElementById('btn-toggle-theme-pause')?.addEventListener('click', handleThemeToggle);
+    document.getElementById('btn-toggle-theme-hud')?.addEventListener('click', handleThemeToggle);
   }
 
   public startGame() {

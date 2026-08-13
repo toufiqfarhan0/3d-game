@@ -13,6 +13,7 @@ export class TrackManager {
   private numSegments: number = 8;
   private furthestZ: number = 0;
   private sectorThemeIndex: number = 0;
+  public isLightMode: boolean = false;
 
   private themeColors: number[] = [
     0x00f0ff, // Sector 1: Cyan
@@ -26,6 +27,11 @@ export class TrackManager {
     this.scene = scene;
   }
 
+  public setTheme(theme: 'dark' | 'light') {
+    this.isLightMode = theme === 'light';
+    this.segments.forEach(s => s.updateTheme(this.isLightMode));
+  }
+
   public initTrack() {
     this.clearAll();
 
@@ -37,7 +43,7 @@ export class TrackManager {
 
   private spawnSegment(isSafeStart: boolean) {
     const themeColor = this.themeColors[this.sectorThemeIndex % this.themeColors.length];
-    const segment = new TrackSegment(this.furthestZ, themeColor);
+    const segment = new TrackSegment(this.furthestZ, themeColor, this.isLightMode);
     this.segments.push(segment);
     this.scene.add(segment.mesh);
 
