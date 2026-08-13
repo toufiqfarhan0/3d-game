@@ -30,7 +30,13 @@ export class Game {
   private inputMgr!: InputManager;
   private uiMgr!: UIManager;
 
-  private clock: THREE.Clock = new THREE.Clock();
+  private lastFrameTime: number = performance.now();
+  private dirLight!: THREE.DirectionalLight;
+  private ambientLight!: THREE.AmbientLight;
+  private hemiLight!: THREE.HemisphereLight;
+  private groundMesh!: THREE.Mesh;
+  private groundMat!: THREE.MeshStandardMaterial;
+  private starfield!: THREE.Points;
 
   constructor(canvasId: string) {
     this.canvas = document.getElementById(canvasId) as HTMLCanvasElement;
@@ -44,11 +50,6 @@ export class Game {
     this.startRenderLoop();
   }
 
-  private ambientLight!: THREE.AmbientLight;
-  private hemiLight!: THREE.HemisphereLight;
-  private groundMesh!: THREE.Mesh;
-  private groundMat!: THREE.MeshStandardMaterial;
-
   private initThreeJS() {
     this.scene = new THREE.Scene();
     this.scene.background = new THREE.Color(0x131729);
@@ -57,7 +58,8 @@ export class Game {
     this.renderer = new THREE.WebGLRenderer({
       canvas: this.canvas,
       antialias: true,
-      powerPreference: 'high-performance'
+      powerPreference: 'high-performance',
+      precision: 'highp',
     });
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -75,20 +77,21 @@ export class Game {
     this.hemiLight = new THREE.HemisphereLight(0x5ad4ff, 0x3a1fa0, 1.0);
     this.scene.add(this.hemiLight);
 
-    // Main directional light — sharp shadows
-    const dirLight = new THREE.DirectionalLight(0xfff4e0, 1.6);
-    dirLight.position.set(15, 40, 20);
-    dirLight.castShadow = true;
-    dirLight.shadow.mapSize.width  = 1024;
-    dirLight.shadow.mapSize.height = 1024;
-    dirLight.shadow.camera.near = 1;
-    dirLight.shadow.camera.far  = 120;
-    dirLight.shadow.camera.left   = -20;
-    dirLight.shadow.camera.right  = 20;
-    dirLight.shadow.camera.top    = 25;
-    dirLight.shadow.camera.bottom = -20;
-    this.scene.add(dirLight);
-    (this as any).dirLight = dirLight;
+    // Main directional light — optimized shadow map and tight bounds
+    this.dirLight = new THREE.DirectionalLight(0xfff4e0, 1.6);
+    this.dirLight.position.set(12, 30, 15);
+    this.dirLight.castShadow = true;
+    this.dirLight.shadow.mapSize.width  = 1024;
+    this.dirLight.shadow.mapSize.height = 1024;
+    this.dirLight.shadow.camera.near = 5;
+    this.dirLight.shadow.camera.far  = 70;
+    this.dirLight.shadow.camera.left   = -10;
+    this.dirLight.shadow.camera.right  = 10;
+    this.dirLight.shadow.camera.top    = 15;
+    this.dirLight.shadow.camera.bottom = -10;
+    this.dirLight.shadow.bias = -0.0005;
+    this.dirLight.shadow.normalBias = 0.02;
+    this.scene.add(this.dirLight);
 
     // Rim light from behind for depth
     const rimLight = new THREE.DirectionalLight(0x4466ff, 0.5);
@@ -96,7 +99,6 @@ export class Game {
     this.scene.add(rimLight);
 
     // ── WIDE GROUND PLANE ─────────────────────────────────────────
-    // Extends far on both sides giving a city-block feel
     const groundGeo = new THREE.PlaneGeometry(300, 2000, 1, 1);
     this.groundMat = new THREE.MeshStandardMaterial({
       color: 0x0e1228,
@@ -143,9 +145,9 @@ export class Game {
       blending: THREE.AdditiveBlending,
       depthWrite: false,
     });
-    const stars = new THREE.Points(geo, mat);
-    this.scene.add(stars);
-    (this as any).starfield = stars;
+    this.starfield = new THREE.Points(geo, mat);
+    this.starfield.frustumCulled = false;
+    this.scene.add(this.starfield);
   }
 
   public setTheme(theme: 'dark' | 'light') {
@@ -160,7 +162,7 @@ export class Game {
     }
     if (this.hemiLight) {
       this.hemiLight.color.setHex(isLight ? 0xffffff : 0x5ad4ff);
-      this.hemiLight.groundColor.setHex(isLight ? 0xd4c09a : 0x3a1fa0); // warm sand ground for day
+      this.hemiLight.groundColor.setHex(isLight ? 0xd4c09a : 0x3a1fa0);
       this.hemiLight.intensity = isLight ? 1.2 : 1.0;
     }
     if (this.groundMat) {
@@ -169,8 +171,8 @@ export class Game {
       this.groundMat.metalness = isLight ? 0.0 : 0.2;
       this.groundMat.needsUpdate = true;
     }
-    if ((this as any).starfield) {
-      (this as any).starfield.visible = !isLight;
+    if (this.starfield) {
+      this.starfield.visible = !isLight;
     }
     if (this.trackMgr) {
       this.trackMgr.setTheme(theme);
@@ -247,6 +249,14 @@ export class Game {
     document.getElementById('btn-toggle-theme')?.addEventListener('click', handleThemeToggle);
     document.getElementById('btn-toggle-theme-pause')?.addEventListener('click', handleThemeToggle);
     document.getElementById('btn-toggle-theme-hud')?.addEventListener('click', handleThemeToggle);
+
+    // Tab visibility handling to prevent delta time explosion
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden && this.state === 'PLAYING') {
+        this.pauseGame();
+      }
+      this.lastFrameTime = performance.now();
+    });
   }
 
   public startGame() {
@@ -265,7 +275,7 @@ export class Game {
 
     this.uiMgr.showHUD();
     this.soundMgr.startMusic();
-    this.clock.start();
+    this.lastFrameTime = performance.now();
   }
 
   public pauseGame() {
@@ -278,7 +288,7 @@ export class Game {
     if (this.state !== 'PAUSED') return;
     this.state = 'PLAYING';
     this.uiMgr.hidePauseModal();
-    this.clock.start();
+    this.lastFrameTime = performance.now();
   }
 
   public gameOver() {
@@ -299,9 +309,16 @@ export class Game {
   }
 
   private startRenderLoop() {
-    const loop = () => {
+    this.lastFrameTime = performance.now();
+
+    const loop = (currentTime: number) => {
       requestAnimationFrame(loop);
-      const dt = Math.min(this.clock.getDelta(), 0.1);
+
+      const rawDt = (currentTime - this.lastFrameTime) * 0.001;
+      this.lastFrameTime = currentTime;
+
+      // Delta time clamping: minimum 1ms, maximum 33ms (~30 FPS floor) to prevent physics tunneling
+      const dt = Math.min(Math.max(rawDt, 0.001), 0.033);
 
       if (this.state === 'PLAYING') {
         this.updateGameLogic(dt);
@@ -309,7 +326,8 @@ export class Game {
 
       this.renderer.render(this.scene, this.cameraMgr.camera);
     };
-    loop();
+
+    requestAnimationFrame(loop);
   }
 
   private updateGameLogic(dt: number) {
@@ -322,14 +340,14 @@ export class Game {
     this.player.update(dt);
     const currPlayerZ = this.player.mesh.position.z;
 
-    // Track directional shadow light to follow player
-    if ((this as any).dirLight) {
-      (this as any).dirLight.position.set(
-        this.player.mesh.position.x + 15,
-        40,
-        this.player.mesh.position.z + 20
+    // Track directional shadow light to follow player tightly
+    if (this.dirLight) {
+      this.dirLight.position.set(
+        this.player.mesh.position.x + 12,
+        30,
+        this.player.mesh.position.z + 15
       );
-      (this as any).dirLight.target = this.player.mesh;
+      this.dirLight.target = this.player.mesh;
     }
 
     // Slide ground plane forward so it never falls behind the camera
@@ -340,26 +358,31 @@ export class Game {
     // Update active powerups state on player
     this.player.shieldActive = this.scoreMgr.hasPowerup('SHIELD');
 
-    // 3. Track Manager update (recycling segments & spawning)
+    // 3. Track Manager update (recycling segments & spawning from zero-GC pools)
     this.trackMgr.update(this.player.mesh.position.z, dt);
 
-    // 5. Collision Checks: Player vs Obstacles
-    this.trackMgr.obstacles.forEach(obs => {
-      if (obs.active && checkSweptAABBCollision(this.player.boundingBox, obs.boundingBox, prevPlayerZ, currPlayerZ)) {
-        // Skip collision if player is currently invincible (i-frame)
-        if (this.player.isInvincible) return;
+    // 4. Optimized Spatial Collision Checks: Player vs Obstacles
+    const obstacles = this.trackMgr.obstacles;
+    for (let i = obstacles.length - 1; i >= 0; i--) {
+      const obs = obstacles[i];
+      if (!obs.active) continue;
+
+      // Fast Z-axis spatial cull before AABB math
+      const obsZ = obs.mesh.position.z;
+      if (obsZ < currPlayerZ - 2 || obsZ > currPlayerZ + 12) continue;
+
+      if (checkSweptAABBCollision(this.player.boundingBox, obs.boundingBox, prevPlayerZ, currPlayerZ)) {
+        if (this.player.isInvincible) continue;
 
         if (this.scoreMgr.consumeShield()) {
           // Shield protected from fatal crash!
-          obs.active = false;
-          obs.mesh.visible = false;
+          this.trackMgr.recycleObstacle(obs);
           this.soundMgr.playShieldBreak();
           this.particleMgr.spawnBurst(this.player.mesh.position, 0x00f0ff, 30);
           this.cameraMgr.triggerShake(0.4);
         } else {
-          // Deactivate hit obstacle so player doesn't continuously collide
-          obs.active = false;
-          obs.mesh.visible = false;
+          // Deactivate hit obstacle
+          this.trackMgr.recycleObstacle(obs);
 
           // Take damage: lose 1 life
           const remainingLives = this.player.takeDamage(1);
@@ -367,49 +390,56 @@ export class Game {
           this.uiMgr.flashDamageScreen();
 
           if (remainingLives <= 0) {
-            // All 3 lives lost -> Game Over!
             this.gameOver();
           } else {
-            // Non-fatal hit: play hit sound effect, explosion particles, camera shake
             this.soundMgr.playHit();
             this.particleMgr.spawnBurst(this.player.mesh.position, 0xff0055, 30);
             this.cameraMgr.triggerShake(0.5);
           }
         }
       }
-    });
+    }
 
-    // 6. Collision Checks: Player vs Collectibles
-    this.trackMgr.collectibles.forEach(col => {
-      if (col.active && checkAABBCollision(this.player.boundingBox, col.boundingBox)) {
-        col.active = false;
-        col.mesh.visible = false;
+    // 5. Optimized Spatial Collision Checks: Player vs Collectibles
+    const collectibles = this.trackMgr.collectibles;
+    for (let i = collectibles.length - 1; i >= 0; i--) {
+      const col = collectibles[i];
+      if (!col.active) continue;
 
-        if (col.type === 'ORB') {
+      // Fast Z-axis spatial cull before AABB check
+      const colZ = col.mesh.position.z;
+      if (colZ < currPlayerZ - 2 || colZ > currPlayerZ + 8) continue;
+
+      if (checkAABBCollision(this.player.boundingBox, col.boundingBox)) {
+        const colPos = col.mesh.position.clone();
+        const colType = col.type;
+        this.trackMgr.recycleCollectible(col);
+
+        if (colType === 'ORB') {
           this.scoreMgr.addOrb(1);
           this.soundMgr.playCoin();
-          this.particleMgr.spawnBurst(col.mesh.position, 0xffaa00, 12);
+          this.particleMgr.spawnBurst(colPos, 0xffaa00, 14);
         } else {
-          // Power-up
-          const duration = this.shopMgr.getPowerupDuration(col.type as any);
-          this.scoreMgr.activatePowerup(col.type as any, duration);
+          const duration = this.shopMgr.getPowerupDuration(colType as any);
+          this.scoreMgr.activatePowerup(colType as any, duration);
           this.soundMgr.playPowerup();
-          this.particleMgr.spawnBurst(col.mesh.position, 0x00f0ff, 25);
+          this.particleMgr.spawnBurst(colPos, 0x00f0ff, 25);
         }
       }
-    });
+    }
 
-    // 7. Particle Effects & Speed Lines
+    // 6. Particle Effects & Thruster Propulsion
+    this.particleMgr.spawnThrusterSparks(this.player.mesh.position, this.player.glowColor);
     if (this.player.isSliding) {
       this.particleMgr.spawnSlideSparks(this.player.mesh.position);
     }
     this.particleMgr.spawnSpeedLines(this.cameraMgr.camera.position);
     this.particleMgr.update(dt);
 
-    // 8. Camera Tracking & FOV Update
+    // 7. Camera Tracking & FOV Update
     this.cameraMgr.update(this.player.mesh.position, this.currentSpeed, dt);
 
-    // 9. Score & HUD UI update
+    // 8. Score & HUD UI update
     const currentSectorIndex = Math.floor(this.player.mesh.position.z / 400);
     this.scoreMgr.update(dt, this.currentSpeed, this.player.mesh.position.z);
     this.uiMgr.updateHUD(this.currentSpeed, currentSectorIndex);
@@ -420,6 +450,7 @@ export class Game {
       const width = window.innerWidth;
       const height = window.innerHeight;
       this.renderer.setSize(width, height);
+      this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
       this.cameraMgr.resize(width, height);
     });
   }

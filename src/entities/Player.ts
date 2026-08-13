@@ -56,8 +56,8 @@ export class Player {
   private invincibilityDuration: number = 1.5;
 
   // Current Skin Colors
-  private primaryColor: number = 0x0284c7; // Tactical Cyan/Blue
-  private glowColor: number = 0x38bdf8;
+  public primaryColor: number = 0x0284c7; // Tactical Cyan/Blue
+  public glowColor: number = 0x38bdf8;
 
   constructor(scene: THREE.Scene) {
     this.mesh = new THREE.Group();

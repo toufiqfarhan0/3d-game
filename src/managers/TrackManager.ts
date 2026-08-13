@@ -1,16 +1,18 @@
 import * as THREE from 'three';
 import { TrackSegment, SEGMENT_LENGTH } from '../entities/TrackSegment';
+import { ObstaclePool } from './ObstaclePool';
+import { CollectiblePool } from './CollectiblePool';
 import { Obstacle, ObstacleType } from '../entities/Obstacle';
 import { Collectible, CollectibleType } from '../entities/Collectible';
-import { LANE_X_POSITIONS, randomChoice, randomRange, disposeObject3D } from '../utils/MathUtils';
+import { LANE_X_POSITIONS, randomChoice } from '../utils/MathUtils';
 
 export class TrackManager {
   private scene: THREE.Scene;
   private segments: TrackSegment[] = [];
-  public obstacles: Obstacle[] = [];
-  public collectibles: Collectible[] = [];
+  private obstaclePool: ObstaclePool;
+  private collectiblePool: CollectiblePool;
 
-  private numSegments: number = 8;
+  private numSegments: number = 10;
   private furthestZ: number = 0;
   private sectorThemeIndex: number = 0;
   public isLightMode: boolean = false;
@@ -25,33 +27,58 @@ export class TrackManager {
 
   constructor(scene: THREE.Scene) {
     this.scene = scene;
+    this.obstaclePool = new ObstaclePool(this.scene, 10);
+    this.collectiblePool = new CollectiblePool(this.scene);
+
+    // Pre-instantiate fixed segment pool
+    for (let i = 0; i < this.numSegments; i++) {
+      const segment = new TrackSegment(i * SEGMENT_LENGTH, this.themeColors[0], this.isLightMode);
+      this.segments.push(segment);
+      this.scene.add(segment.mesh);
+    }
+  }
+
+  public get obstacles(): Obstacle[] {
+    return this.obstaclePool.activeObstacles;
+  }
+
+  public get collectibles(): Collectible[] {
+    return this.collectiblePool.activeCollectibles;
+  }
+
+  public recycleObstacle(obs: Obstacle) {
+    this.obstaclePool.recycle(obs);
+  }
+
+  public recycleCollectible(col: Collectible) {
+    this.collectiblePool.recycle(col);
   }
 
   public setTheme(theme: 'dark' | 'light') {
     this.isLightMode = theme === 'light';
-    this.segments.forEach(s => s.updateTheme(this.isLightMode));
+    for (let i = 0; i < this.segments.length; i++) {
+      this.segments[i].updateTheme(this.isLightMode);
+    }
   }
 
   public initTrack() {
-    this.clearAll();
+    this.obstaclePool.clearAll();
+    this.collectiblePool.clearAll();
 
     this.furthestZ = 0;
+    this.sectorThemeIndex = 0;
+
     for (let i = 0; i < this.numSegments; i++) {
-      this.spawnSegment(i === 0); // First segment clean without obstacles
+      const z = i * SEGMENT_LENGTH;
+      const themeColor = this.themeColors[0];
+      const hasGantry = i > 0 && (i % 2 === 0);
+      this.segments[i].reposition(z, themeColor, this.isLightMode, hasGantry);
+
+      if (i > 0) {
+        this.generatePatternForSegment(z);
+      }
+      this.furthestZ = z + SEGMENT_LENGTH;
     }
-  }
-
-  private spawnSegment(isSafeStart: boolean) {
-    const themeColor = this.themeColors[this.sectorThemeIndex % this.themeColors.length];
-    const segment = new TrackSegment(this.furthestZ, themeColor, this.isLightMode);
-    this.segments.push(segment);
-    this.scene.add(segment.mesh);
-
-    if (!isSafeStart) {
-      this.generatePatternForSegment(this.furthestZ);
-    }
-
-    this.furthestZ += SEGMENT_LENGTH;
   }
 
   private generatePatternForSegment(startZ: number) {
@@ -72,30 +99,25 @@ export class TrackManager {
     // Pick obstacle types
     const types: ObstacleType[] = ['LOW_BARRIER', 'HIGH_GATE', 'FULL_BLOCK', 'MOVING_DRONE'];
     
-    blockedLanes.forEach(laneIdx => {
+    for (let i = 0; i < blockedLanes.length; i++) {
+      const laneIdx = blockedLanes[i];
       const type = randomChoice(types);
       const posX = LANE_X_POSITIONS[laneIdx];
-      const obstacle = new Obstacle(type, laneIdx, posX, posZ);
-      this.obstacles.push(obstacle);
-      this.scene.add(obstacle.mesh);
-    });
+      this.obstaclePool.spawn(type, laneIdx, posX, posZ);
+    }
 
     // Spawn Energy Cells on the open lane
     const orbLaneX = LANE_X_POSITIONS[openLane];
     for (let i = 0; i < 4; i++) {
       const orbZ = posZ - 6 + i * 3;
-      const orb = new Collectible('ORB', orbLaneX, 1.0, orbZ);
-      this.collectibles.push(orb);
-      this.scene.add(orb.mesh);
+      this.collectiblePool.spawn('ORB', orbLaneX, 1.0, orbZ);
     }
 
     // 18% Chance for a rare Power-up
     if (Math.random() < 0.18) {
       const pTypes: CollectibleType[] = ['SHIELD', 'MULTIPLIER'];
       const pType = randomChoice(pTypes);
-      const pOrb = new Collectible(pType, orbLaneX, 1.2, posZ + 8);
-      this.collectibles.push(pOrb);
-      this.scene.add(pOrb.mesh);
+      this.collectiblePool.spawn(pType, orbLaneX, 1.2, posZ + 8);
     }
   }
 
@@ -106,61 +128,33 @@ export class TrackManager {
       this.sectorThemeIndex = currentSector;
     }
 
-    // Recycle old track segments behind player
+    // Recycle oldest track segment when behind player (frustum cull threshold: 10m behind player)
     if (this.segments.length > 0) {
       const firstSegment = this.segments[0];
-      if (firstSegment.mesh.position.z + SEGMENT_LENGTH < playerZ - 20) {
-        this.scene.remove(firstSegment.mesh);
-        disposeObject3D(firstSegment.mesh);
-        this.segments.shift();
+      if (firstSegment.mesh.position.z + SEGMENT_LENGTH < playerZ - 10) {
+        const recycledSegment = this.segments.shift()!;
+        const themeColor = this.themeColors[this.sectorThemeIndex % this.themeColors.length];
+        const hasGantry = Math.random() < 0.5;
 
-        this.spawnSegment(false);
+        recycledSegment.reposition(this.furthestZ, themeColor, this.isLightMode, hasGantry);
+        this.segments.push(recycledSegment);
+
+        this.generatePatternForSegment(this.furthestZ);
+        this.furthestZ += SEGMENT_LENGTH;
       }
     }
 
-    // Update active obstacles
-    for (let i = this.obstacles.length - 1; i >= 0; i--) {
-      const obs = this.obstacles[i];
-      obs.update(dt);
+    // Recycle passed obstacles and update active ones
+    this.obstaclePool.recyclePassed(playerZ - 10);
+    this.obstaclePool.update(dt);
 
-      // Cleanup past obstacles
-      if (obs.mesh.position.z < playerZ - 20) {
-        this.scene.remove(obs.mesh);
-        disposeObject3D(obs.mesh);
-        this.obstacles.splice(i, 1);
-      }
-    }
-
-    // Update active collectibles
-    for (let i = this.collectibles.length - 1; i >= 0; i--) {
-      const col = this.collectibles[i];
-      col.update(dt);
-
-      // Cleanup past collectibles
-      if (col.mesh.position.z < playerZ - 20) {
-        this.scene.remove(col.mesh);
-        disposeObject3D(col.mesh);
-        this.collectibles.splice(i, 1);
-      }
-    }
+    // Recycle passed collectibles and update active ones
+    this.collectiblePool.recyclePassed(playerZ - 10);
+    this.collectiblePool.update(dt);
   }
 
   public clearAll() {
-    this.segments.forEach(s => {
-      this.scene.remove(s.mesh);
-      disposeObject3D(s.mesh);
-    });
-    this.obstacles.forEach(o => {
-      this.scene.remove(o.mesh);
-      disposeObject3D(o.mesh);
-    });
-    this.collectibles.forEach(c => {
-      this.scene.remove(c.mesh);
-      disposeObject3D(c.mesh);
-    });
-
-    this.segments = [];
-    this.obstacles = [];
-    this.collectibles = [];
+    this.obstaclePool.clearAll();
+    this.collectiblePool.clearAll();
   }
 }
