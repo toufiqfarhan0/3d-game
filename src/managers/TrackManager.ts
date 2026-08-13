@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { TrackSegment, SEGMENT_LENGTH } from '../entities/TrackSegment';
 import { Obstacle, ObstacleType } from '../entities/Obstacle';
 import { Collectible, CollectibleType } from '../entities/Collectible';
-import { LANE_X_POSITIONS, randomChoice, randomRange } from '../utils/MathUtils';
+import { LANE_X_POSITIONS, randomChoice, randomRange, disposeObject3D } from '../utils/MathUtils';
 
 export class TrackManager {
   private scene: THREE.Scene;
@@ -105,6 +105,7 @@ export class TrackManager {
       const firstSegment = this.segments[0];
       if (firstSegment.mesh.position.z + SEGMENT_LENGTH < playerZ - 20) {
         this.scene.remove(firstSegment.mesh);
+        disposeObject3D(firstSegment.mesh);
         this.segments.shift();
 
         this.spawnSegment(false);
@@ -119,6 +120,7 @@ export class TrackManager {
       // Cleanup past obstacles
       if (obs.mesh.position.z < playerZ - 20) {
         this.scene.remove(obs.mesh);
+        disposeObject3D(obs.mesh);
         this.obstacles.splice(i, 1);
       }
     }
@@ -131,15 +133,25 @@ export class TrackManager {
       // Cleanup past collectibles
       if (col.mesh.position.z < playerZ - 20) {
         this.scene.remove(col.mesh);
+        disposeObject3D(col.mesh);
         this.collectibles.splice(i, 1);
       }
     }
   }
 
   public clearAll() {
-    this.segments.forEach(s => this.scene.remove(s.mesh));
-    this.obstacles.forEach(o => this.scene.remove(o.mesh));
-    this.collectibles.forEach(c => this.scene.remove(c.mesh));
+    this.segments.forEach(s => {
+      this.scene.remove(s.mesh);
+      disposeObject3D(s.mesh);
+    });
+    this.obstacles.forEach(o => {
+      this.scene.remove(o.mesh);
+      disposeObject3D(o.mesh);
+    });
+    this.collectibles.forEach(c => {
+      this.scene.remove(c.mesh);
+      disposeObject3D(c.mesh);
+    });
 
     this.segments = [];
     this.obstacles = [];

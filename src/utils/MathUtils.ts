@@ -29,3 +29,24 @@ export function randomChoice<T>(arr: T[]): T {
 export function checkAABBCollision(box1: THREE.Box3, box2: THREE.Box3): boolean {
   return box1.intersectsBox(box2);
 }
+
+// Deeply dispose of Three.js Object3D hierarchy (geometries & materials) to prevent WebGL memory leaks
+export function disposeObject3D(obj: THREE.Object3D) {
+  obj.traverse((child) => {
+    if (child instanceof THREE.Mesh) {
+      if (child.geometry) {
+        child.geometry.dispose();
+      }
+      if (child.material) {
+        if (Array.isArray(child.material)) {
+          child.material.forEach(mat => mat.dispose());
+        } else {
+          child.material.dispose();
+        }
+      }
+    } else if (child instanceof THREE.Light) {
+      child.dispose();
+    }
+  });
+}
+

@@ -58,7 +58,7 @@ export class Game {
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     this.renderer.shadowMap.enabled = true;
-    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    this.renderer.shadowMap.type = THREE.PCFShadowMap;
 
     // ACES Filmic Tone Mapping for vibrant neon glow pop
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -74,11 +74,16 @@ export class Game {
     const dirLight = new THREE.DirectionalLight(0xffffff, 1.4);
     dirLight.position.set(20, 40, 20);
     dirLight.castShadow = true;
-    dirLight.shadow.mapSize.width = 2048;
-    dirLight.shadow.mapSize.height = 2048;
-    dirLight.shadow.camera.near = 0.5;
-    dirLight.shadow.camera.far = 150;
+    dirLight.shadow.mapSize.width = 1024;
+    dirLight.shadow.mapSize.height = 1024;
+    dirLight.shadow.camera.near = 1;
+    dirLight.shadow.camera.far = 100;
+    dirLight.shadow.camera.left = -15;
+    dirLight.shadow.camera.right = 15;
+    dirLight.shadow.camera.top = 20;
+    dirLight.shadow.camera.bottom = -15;
     this.scene.add(dirLight);
+    (this as any).dirLight = dirLight;
   }
 
   private initManagers() {
@@ -224,6 +229,16 @@ export class Game {
     this.player.mesh.position.z += this.currentSpeed * dt;
     this.player.update(dt);
 
+    // Track directional shadow light to follow player
+    if ((this as any).dirLight) {
+      (this as any).dirLight.position.set(
+        this.player.mesh.position.x + 20,
+        40,
+        this.player.mesh.position.z + 20
+      );
+      (this as any).dirLight.target = this.player.mesh;
+    }
+
     // Update active powerups state on player
     this.player.shieldActive = this.scoreMgr.hasPowerup('SHIELD');
     this.player.magnetActive = this.scoreMgr.hasPowerup('MAGNET');
@@ -233,10 +248,11 @@ export class Game {
 
     // 4. Magnet Attractor Logic
     if (this.player.magnetActive) {
+      const magRadiusSq = this.player.magnetRadius * this.player.magnetRadius;
       this.trackMgr.collectibles.forEach(col => {
         if (col.active && col.type === 'ORB') {
-          const dist = col.mesh.position.distanceTo(this.player.mesh.position);
-          if (dist < this.player.magnetRadius) {
+          const distSq = col.mesh.position.distanceToSquared(this.player.mesh.position);
+          if (distSq < magRadiusSq) {
             col.mesh.position.lerp(this.player.mesh.position, dt * 10);
           }
         }

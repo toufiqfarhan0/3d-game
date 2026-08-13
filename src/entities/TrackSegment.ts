@@ -74,22 +74,16 @@ export class TrackSegment {
       const pLeft = new THREE.Mesh(pillarGeo, pillarMat);
       pLeft.position.set(-6.5, 3.25, z);
 
-      const lampLeft = new THREE.Mesh(new THREE.SphereGeometry(0.35, 12, 12), lampMat);
+      const lampLeft = new THREE.Mesh(new THREE.SphereGeometry(0.35, 8, 8), lampMat);
       lampLeft.position.set(-6.5, 6.5, z);
-
-      const lightLeft = new THREE.PointLight(themeColor, 1.8, 8);
-      lightLeft.position.set(-6.5, 6.5, z);
 
       const pRight = new THREE.Mesh(pillarGeo, pillarMat);
       pRight.position.set(6.5, 3.25, z);
 
-      const lampRight = new THREE.Mesh(new THREE.SphereGeometry(0.35, 12, 12), lampMat);
+      const lampRight = new THREE.Mesh(new THREE.SphereGeometry(0.35, 8, 8), lampMat);
       lampRight.position.set(6.5, 6.5, z);
 
-      const lightRight = new THREE.PointLight(themeColor, 1.8, 8);
-      lightRight.position.set(6.5, 6.5, z);
-
-      this.mesh.add(pLeft, lampLeft, lightLeft, pRight, lampRight, lightRight);
+      this.mesh.add(pLeft, lampLeft, pRight, lampRight);
     }
   }
 }

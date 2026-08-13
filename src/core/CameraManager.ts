@@ -34,8 +34,10 @@ export class CameraManager {
 
     // 3. Dynamic FOV Zoom speed effect
     const targetFOV = 65 + (playerSpeed - 28) * 0.4;
-    this.camera.fov = lerp(this.camera.fov, targetFOV, dt * 5);
-    this.camera.updateProjectionMatrix();
+    if (Math.abs(this.camera.fov - targetFOV) > 0.01) {
+      this.camera.fov = lerp(this.camera.fov, targetFOV, dt * 5);
+      this.camera.updateProjectionMatrix();
+    }
 
     // Look slightly ahead of player
     this.camera.lookAt(playerPos.x * 0.3, playerPos.y + 1.6, playerPos.z + 12);
