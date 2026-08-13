@@ -88,7 +88,7 @@
       <div class="glass-card title-card">
         <div class="game-badge">INFINITE 3D RUNNER</div>
         <h1 class="glitch-title" data-text="CYBER RUNNER">CYBER RUNNER</h1>
-        <p class="subtitle">Dodge obstacles, gather energy orbs, unlock upgrades, and run infinitely through synthwave sectors!</p>
+        <p class="subtitle">Dodge obstacles, gather energy orbs, and run infinitely through synthwave sectors!</p>
 
         <div class="high-score-banner">
           <span class="trophy-icon">🏆</span>
@@ -119,10 +119,6 @@
             <span>RUN NOW</span>
             <span class="btn-subtext">Press SPACE or Click</span>
           </button>
-
-          <button id="btn-open-shop" class="btn btn-secondary">
-            <span>UPGRADES & SKINS</span>
-          </button>
         </div>
 
         <div class="audio-toggle-container">
@@ -134,65 +130,6 @@
             <span id="theme-icon">☀️</span>
             <span id="theme-label">THEME: DARK</span>
           </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Shop / Upgrades Modal -->
-    <div id="shop-modal" class="screen-overlay hidden">
-      <div class="glass-card shop-card">
-        <div class="shop-header">
-          <h2>CYBER LAB & UPGRADES</h2>
-          <div class="shop-coins">
-            <span class="orb-icon">◆</span>
-            <span id="shop-coin-count">0</span> ORBS
-          </div>
-          <button id="btn-close-shop" class="close-btn">&times;</button>
-        </div>
-
-        <div class="shop-tabs">
-          <button class="shop-tab active" data-tab="upgrades">POWER-UP UPGRADES</button>
-          <button class="shop-tab" data-tab="skins">RUNNER SUITS</button>
-        </div>
-
-        <div class="shop-tab-content active" id="tab-upgrades">
-          <div class="upgrade-grid">
-            <div class="upgrade-card" id="upg-shield">
-              <div class="upg-icon">🛡️</div>
-              <div class="upg-info">
-                <h3>Energy Shield</h3>
-                <p>Protects from 1 fatal collision crash.</p>
-                <div class="upg-level-bar" id="lvl-bar-shield">
-                  <span class="bar fill"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span>
-                </div>
-              </div>
-              <button class="btn btn-sm btn-upgrade" id="btn-upg-shield">
-                <span class="price-val">75 Orbs</span>
-                <span class="upg-lbl">UPGRADE</span>
-              </button>
-            </div>
-
-            <div class="upgrade-card" id="upg-multiplier">
-              <div class="upg-icon">⚡</div>
-              <div class="upg-info">
-                <h3>Score Surge</h3>
-                <p>Increases score multiplier duration & boost rate.</p>
-                <div class="upg-level-bar" id="lvl-bar-multiplier">
-                  <span class="bar fill"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span>
-                </div>
-              </div>
-              <button class="btn btn-sm btn-upgrade" id="btn-upg-multiplier">
-                <span class="price-val">100 Orbs</span>
-                <span class="upg-lbl">UPGRADE</span>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <div class="shop-tab-content" id="tab-skins">
-          <div class="skins-grid" id="skins-container">
-            <!-- Dynamic skin cards rendered via JS -->
-          </div>
         </div>
       </div>
     </div>
@@ -247,7 +184,6 @@
             <span>RUN AGAIN</span>
             <span class="btn-subtext">Press SPACE or Click</span>
           </button>
-          <button id="btn-gameover-shop" class="btn btn-secondary">SHOP & UPGRADES</button>
         </div>
       </div>
     </div>
