@@ -1,12 +1,12 @@
 /* ======================================================
    AO RUN — Arcade Retro-Modern UI
-   Fortnite / Borderlands inspired
+   Fortnite / Borderlands inspired + Full Responsiveness
    ====================================================== */
 
 @import url('https://fonts.googleapis.com/css2?family=Bangers&family=Boogaloo&family=Inter:wght@400;500;600;700&display=swap');
 
 :root {
-  /* Core palette — rich navy/slate dark mode (not pure black) */
+  /* Core palette — rich navy/slate dark mode */
   --bg:           #181c36;   /* deep navy */
   --surface:      #222645;   /* muted indigo-slate */
   --surface-2:    #2b3060;   /* slightly lighter slate */
@@ -21,7 +21,7 @@
   --green:        #22ff7a;
   --red:          #ff2244;
 
-  /* Outline / comic border — dark navy, not pure black */
+  /* Outline / comic border */
   --outline:      #0f1228;
   --outline-w:    3px;
 
@@ -36,6 +36,13 @@
 
   /* Transition */
   --ease-pop:     cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* Responsive spacing tokens */
+  --space-xs: clamp(0.25rem, 1vw, 0.4rem);
+  --space-sm: clamp(0.4rem, 1.5vw, 0.75rem);
+  --space-md: clamp(0.75rem, 2vw, 1.25rem);
+  --space-lg: clamp(1rem, 3vw, 1.8rem);
+  --space-xl: clamp(1.4rem, 4vw, 2.5rem);
 }
 
 /* ===================== Reset ===================== */
@@ -56,12 +63,15 @@ html, body {
   font-family: var(--f-body);
   font-size: 16px;
   -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: none;
 }
 
 #app-container {
   position: relative;
   width: 100vw;
   height: 100vh;
+  height: 100dvh;
   overflow: hidden;
 }
 
@@ -99,7 +109,7 @@ html, body {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 1.25rem 1.5rem;
+  padding: clamp(0.5rem, 2vw, 1.25rem) clamp(0.6rem, 2.5vw, 1.5rem);
   transition: opacity 0.3s ease;
 }
 
@@ -111,9 +121,12 @@ html, body {
 /* ---- Top Bar ---- */
 .hud-top-bar {
   display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
+  align-items: center;
+  gap: clamp(0.3rem, 1.2vw, 0.75rem);
   pointer-events: auto;
+  flex-wrap: nowrap;
+  min-width: 0;
+  max-width: 100%;
 }
 
 /* Comic-style box — thick black outline, flat color + inner shadow */
@@ -121,36 +134,42 @@ html, body {
   background: var(--surface);
   border: var(--outline-w) solid var(--outline);
   border-radius: 10px;
-  padding: 0.45rem 1rem 0.55rem;
+  padding: clamp(0.3rem, 0.8vw, 0.45rem) clamp(0.45rem, 1.4vw, 1rem) clamp(0.35rem, 1vw, 0.55rem);
   display: flex;
   flex-direction: column;
   position: relative;
   box-shadow:
-    4px 4px 0 var(--outline),
+    3px 3px 0 var(--outline),
     inset 0 1px 0 rgba(255,255,255,0.06);
+  min-width: 0;
+  flex-shrink: 1;
 }
 
 .hud-label {
   font-family: var(--f-ui);
-  font-size: 0.7rem;
-  letter-spacing: 1.5px;
+  font-size: clamp(0.55rem, 1.3vw, 0.7rem);
+  letter-spacing: clamp(0.5px, 0.2vw, 1.5px);
   color: var(--text-dim);
   text-transform: uppercase;
   line-height: 1;
   margin-bottom: 2px;
+  white-space: nowrap;
 }
 
 .hud-val {
   font-family: var(--f-display);
-  font-size: 1.65rem;
+  font-size: clamp(1rem, 2.8vw, 1.65rem);
   font-weight: 400;
   letter-spacing: 1px;
   color: var(--text);
   line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .score-box {
-  min-width: 130px;
+  min-width: clamp(75px, 16vw, 130px);
   border-top: 4px solid var(--yellow);
 }
 
@@ -160,6 +179,7 @@ html, body {
 }
 
 .distance-box {
+  min-width: clamp(65px, 14vw, 110px);
   border-top: 4px solid var(--cyan);
 }
 
@@ -169,24 +189,26 @@ html, body {
 }
 
 .coin-box {
+  min-width: clamp(60px, 12vw, 95px);
   border-top: 4px solid var(--orange);
 }
 
 /* Multiplier badge */
 .hud-badge {
   position: absolute;
-  top: -14px;
-  right: -12px;
+  top: -10px;
+  right: -8px;
   background: var(--pink);
   color: #fff;
   font-family: var(--f-display);
-  font-size: 0.85rem;
+  font-size: clamp(0.65rem, 1.6vw, 0.85rem);
   letter-spacing: 0.5px;
-  padding: 1px 8px 2px;
+  padding: 1px clamp(4px, 1vw, 8px) 2px;
   border-radius: 20px;
-  border: 2.5px solid var(--outline);
+  border: 2px solid var(--outline);
   box-shadow: 2px 2px 0 var(--outline);
   animation: badgeBounce 2s ease-in-out infinite;
+  white-space: nowrap;
 }
 
 @keyframes badgeBounce {
@@ -196,21 +218,25 @@ html, body {
 
 /* Lives box */
 .lives-box {
+  min-width: clamp(65px, 13vw, 105px);
   border-top: 4px solid var(--red);
 }
 
 .lives-container {
   display: flex;
   align-items: center;
-  gap: 0.3rem;
+  gap: clamp(0.15rem, 0.6vw, 0.3rem);
   margin-top: 2px;
+  flex-wrap: nowrap;
+  overflow: hidden;
 }
 
 /* Chunky heart icons */
 .heart-icon {
-  font-size: 1.25rem;
+  font-size: clamp(0.85rem, 2.3vw, 1.25rem);
   transition: all 0.3s var(--ease-pop);
   filter: drop-shadow(0 0 5px rgba(255, 34, 68, 0.7));
+  flex-shrink: 0;
 }
 
 .heart-icon.lost {
@@ -238,9 +264,10 @@ html, body {
 
 .orb-icon {
   color: var(--orange);
-  font-size: 1.2rem;
+  font-size: clamp(0.85rem, 2.3vw, 1.2rem);
   text-shadow: 0 0 8px var(--orange);
   animation: orbSpin 4s linear infinite;
+  flex-shrink: 0;
 }
 
 @keyframes orbSpin {
@@ -258,10 +285,10 @@ html, body {
   background: var(--surface);
   border: var(--outline-w) solid var(--outline);
   color: var(--text);
-  width: 52px;
-  height: 52px;
+  width: clamp(38px, 7.5vw, 52px);
+  height: clamp(38px, 7.5vw, 52px);
   border-radius: 10px;
-  font-size: 1.4rem;
+  font-size: clamp(1rem, 2.6vw, 1.4rem);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -269,7 +296,7 @@ html, body {
   transition: all 0.15s var(--ease-pop);
   box-shadow: 3px 3px 0 var(--outline);
   position: relative;
-  top: 4px;
+  flex-shrink: 0;
 }
 
 .icon-btn:hover {
@@ -287,22 +314,23 @@ html, body {
 .hud-powerups-container {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  margin-top: 0.8rem;
+  gap: 0.45rem;
+  margin-top: clamp(0.5rem, 1.5vh, 0.8rem);
   align-self: flex-start;
   pointer-events: auto;
+  max-width: clamp(120px, 35vw, 200px);
 }
 
 .powerup-pill {
   display: flex;
   align-items: center;
-  gap: 0.7rem;
+  gap: clamp(0.4rem, 1.2vw, 0.7rem);
   background: var(--surface);
   border: 2.5px solid var(--outline);
   border-left: 5px solid var(--cyan);
-  padding: 0.35rem 0.8rem 0.35rem 0.6rem;
+  padding: clamp(0.25rem, 0.8vw, 0.35rem) clamp(0.5rem, 1.4vw, 0.8rem) clamp(0.25rem, 0.8vw, 0.35rem) clamp(0.4rem, 1vw, 0.6rem);
   border-radius: 8px;
-  min-width: 150px;
+  min-width: clamp(110px, 28vw, 150px);
   box-shadow: 3px 3px 0 var(--outline);
   animation: slideInLeft 0.25s var(--ease-pop);
 }
@@ -313,21 +341,26 @@ html, body {
 }
 
 .powerup-pill-icon {
-  font-size: 1.1rem;
+  font-size: clamp(0.9rem, 2.2vw, 1.1rem);
+  flex-shrink: 0;
 }
 
 .powerup-pill-info {
   flex: 1;
   display: flex;
   flex-direction: column;
+  min-width: 0;
 }
 
 .powerup-pill-title {
   font-family: var(--f-ui);
-  font-size: 0.7rem;
+  font-size: clamp(0.6rem, 1.4vw, 0.7rem);
   letter-spacing: 1px;
   color: var(--cyan);
   line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .powerup-timer-bar {
@@ -335,7 +368,7 @@ html, body {
   background: rgba(255,255,255,0.15);
   border-radius: 2px;
   overflow: hidden;
-  margin-top: 4px;
+  margin-top: 3px;
 }
 
 .powerup-timer-fill {
@@ -352,85 +385,98 @@ html, body {
   justify-content: space-between;
   align-items: flex-end;
   pointer-events: auto;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
 }
 
 .level-indicator {
   font-family: var(--f-ui);
-  font-size: 0.9rem;
+  font-size: clamp(0.7rem, 2vw, 0.9rem);
   letter-spacing: 1.5px;
   color: var(--yellow);
   background: var(--surface);
   border: 2.5px solid var(--outline);
   border-bottom: 4px solid var(--outline);
-  padding: 0.4rem 1rem;
+  padding: clamp(0.25rem, 0.8vw, 0.4rem) clamp(0.6rem, 1.5vw, 1rem);
   border-radius: 8px;
   box-shadow: 3px 3px 0 var(--outline);
   text-transform: uppercase;
+  max-width: 65vw;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .controls-hint {
   display: flex;
-  gap: 1rem;
+  gap: clamp(0.4rem, 1vw, 1rem);
   background: rgba(0,0,0,0.55);
-  padding: 0.45rem 1rem;
+  padding: clamp(0.3rem, 0.8vw, 0.45rem) clamp(0.6rem, 1.5vw, 1rem);
   border-radius: 6px;
   font-family: var(--f-body);
-  font-size: 0.8rem;
+  font-size: clamp(0.68rem, 1.6vw, 0.8rem);
   color: var(--text-dim);
   border: 1px solid rgba(255,255,255,0.07);
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 /* ===================== Mobile Touch Controls ===================== */
 .mobile-touch-layer {
   display: none;
   position: absolute;
-  bottom: 1.5rem;
-  left: 1.5rem;
-  right: 1.5rem;
-  height: 140px;
+  bottom: clamp(0.75rem, 2.5vh, 1.5rem);
+  left: clamp(0.75rem, 3vw, 1.5rem);
+  right: clamp(0.75rem, 3vw, 1.5rem);
+  height: clamp(75px, 15vh, 120px);
   justify-content: space-between;
   align-items: center;
   pointer-events: auto;
+  z-index: 15;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 768px), (pointer: coarse) {
   .mobile-touch-layer { display: flex; }
   .controls-hint { display: none; }
 }
 
 .touch-zone {
-  width: 88px;
-  height: 88px;
+  width: clamp(56px, 13vw, 84px);
+  height: clamp(56px, 13vw, 84px);
   background: var(--surface);
   border: 3px solid var(--outline);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 2rem;
+  font-size: clamp(1.4rem, 3.8vw, 2rem);
   color: var(--cyan);
-  box-shadow: 4px 4px 0 var(--outline);
+  box-shadow: 3px 3px 0 var(--outline);
   cursor: pointer;
   transition: transform 0.1s ease;
+  flex-shrink: 0;
+  touch-action: manipulation;
 }
 
 .touch-zone:active { transform: scale(0.88); }
 
-.touch-center-zone { display: flex; gap: 1rem; }
+.touch-center-zone { display: flex; gap: clamp(0.4rem, 1.8vw, 1rem); }
 
 .touch-btn {
-  padding: 1rem 1.8rem;
+  padding: clamp(0.6rem, 1.8vw, 0.95rem) clamp(1rem, 3.2vw, 1.7rem);
   background: var(--surface);
   border: 3px solid var(--outline);
-  border-radius: 20px;
+  border-radius: 16px;
   font-family: var(--f-ui);
-  font-size: 1.1rem;
+  font-size: clamp(0.85rem, 2.6vw, 1.1rem);
   font-weight: 400;
   letter-spacing: 1px;
   color: var(--pink);
-  box-shadow: 4px 4px 0 var(--outline);
+  box-shadow: 3px 3px 0 var(--outline);
   cursor: pointer;
   transition: transform 0.1s ease;
+  touch-action: manipulation;
+  white-space: nowrap;
 }
 
 .touch-btn:active { transform: scale(0.9); box-shadow: 1px 1px 0 var(--outline); }
@@ -442,11 +488,13 @@ html, body {
   z-index: 20;
   background: rgba(18, 20, 48, 0.88);
   backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1.5rem;
+  padding: clamp(0.6rem, 2.5vw, 1.5rem);
   transition: opacity 0.3s ease, transform 0.3s ease;
+  overflow-y: auto;
 }
 
 .screen-overlay.hidden {
@@ -469,18 +517,37 @@ html, body {
   background: var(--surface);
   border: var(--outline-w) solid var(--outline);
   border-radius: 18px;
-  padding: 2.5rem 2.5rem 2rem;
+  padding: clamp(1.25rem, 3.5vw, 2.5rem) clamp(1rem, 3.5vw, 2.5rem) clamp(1rem, 3vw, 2rem);
   max-width: 540px;
-  width: 100%;
+  width: min(94vw, 540px);
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
   position: relative;
+  z-index: 2;
   /* Hard comic shadow */
   box-shadow:
-    7px 7px 0 var(--outline),
+    clamp(4px, 1vw, 7px) clamp(4px, 1vw, 7px) 0 var(--outline),
     inset 0 1px 0 rgba(255,255,255,0.05);
+  max-height: 94dvh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: var(--yellow) transparent;
+}
+
+.glass-card::-webkit-scrollbar {
+  width: 5px;
+}
+
+.glass-card::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.glass-card::-webkit-scrollbar-thumb {
+  background: var(--yellow);
+  border-radius: 4px;
 }
 
 /* Top accent stripe */
@@ -498,37 +565,40 @@ html, body {
 /* ===================== Start Screen ===================== */
 .title-card {
   max-width: 600px;
+  width: min(94vw, 600px);
 }
 
 .game-badge {
   font-family: var(--f-ui);
-  font-size: 0.78rem;
-  letter-spacing: 3px;
+  font-size: clamp(0.65rem, 1.8vw, 0.78rem);
+  letter-spacing: clamp(1.5px, 0.5vw, 3px);
   color: var(--yellow);
   background: rgba(255, 224, 51, 0.12);
-  padding: 4px 14px;
+  padding: 4px clamp(8px, 2vw, 14px);
   border-radius: 6px;
   border: 2px solid rgba(255, 224, 51, 0.4);
-  margin-bottom: 0.9rem;
+  margin-bottom: clamp(0.5rem, 1.5vh, 0.9rem);
   text-transform: uppercase;
   display: inline-block;
+  white-space: nowrap;
 }
 
 /* Big chunky Bangers title */
 .glitch-title {
   font-family: var(--f-display);
-  font-size: 5.5rem;
-  letter-spacing: 4px;
+  font-size: clamp(2.6rem, 10vw, 5.5rem);
+  letter-spacing: clamp(2px, 0.6vw, 4px);
   line-height: 1;
   color: var(--yellow);
   text-shadow:
-    5px 5px 0 var(--outline),
-    -2px -2px 0 var(--outline),
-    2px -2px 0 var(--outline),
-    -2px 2px 0 var(--outline);
+    clamp(2px, 0.6vw, 5px) clamp(2px, 0.6vw, 5px) 0 var(--outline),
+    -1px -1px 0 var(--outline),
+    1px -1px 0 var(--outline),
+    -1px 1px 0 var(--outline);
   margin-bottom: 0.35rem;
   animation: titleWobble 6s ease-in-out infinite;
   position: relative;
+  word-break: break-word;
 }
 
 @keyframes titleWobble {
@@ -580,9 +650,9 @@ html, body {
 .subtitle {
   font-family: var(--f-body);
   color: var(--text-dim);
-  font-size: 0.98rem;
-  line-height: 1.55;
-  margin-bottom: 1.5rem;
+  font-size: clamp(0.82rem, 2.2vw, 0.98rem);
+  line-height: 1.5;
+  margin-bottom: clamp(0.8rem, 2vh, 1.5rem);
   max-width: 440px;
 }
 
@@ -594,16 +664,17 @@ html, body {
   background: rgba(255, 224, 51, 0.08);
   border: 2.5px solid rgba(255, 224, 51, 0.35);
   border-radius: 8px;
-  padding: 0.55rem 1.4rem;
+  padding: clamp(0.35rem, 1vw, 0.55rem) clamp(0.8rem, 2.5vw, 1.4rem);
   font-family: var(--f-ui);
-  font-size: 1rem;
+  font-size: clamp(0.82rem, 2.2vw, 1rem);
   color: var(--yellow);
-  margin-bottom: 1.5rem;
+  margin-bottom: clamp(0.8rem, 2vh, 1.5rem);
   box-shadow: 3px 3px 0 rgba(255, 224, 51, 0.2);
+  flex-shrink: 0;
 }
 
 .trophy-icon {
-  font-size: 1.2rem;
+  font-size: clamp(1rem, 2.5vw, 1.2rem);
 }
 
 /* ---- Life Mode Selector ---- */
@@ -611,14 +682,14 @@ html, body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.6rem;
-  margin-bottom: 1.8rem;
+  gap: clamp(0.3rem, 1vh, 0.6rem);
+  margin-bottom: clamp(0.9rem, 2.2vh, 1.8rem);
   width: 100%;
 }
 
 .life-mode-label {
   font-family: var(--f-ui);
-  font-size: 0.8rem;
+  font-size: clamp(0.68rem, 1.8vw, 0.8rem);
   letter-spacing: 2px;
   color: var(--text-dim);
   text-transform: uppercase;
@@ -626,7 +697,7 @@ html, body {
 
 .life-mode-selector {
   display: flex;
-  gap: 0.7rem;
+  gap: clamp(0.35rem, 1.5vw, 0.7rem);
   width: 100%;
   justify-content: center;
 }
@@ -636,7 +707,7 @@ html, body {
   background: var(--surface-2);
   border: 2.5px solid var(--border);
   border-radius: 10px;
-  padding: 0.7rem 0.5rem;
+  padding: clamp(0.45rem, 1.5vw, 0.7rem) clamp(0.25rem, 1vw, 0.5rem);
   color: var(--text-dim);
   cursor: pointer;
   display: flex;
@@ -646,6 +717,7 @@ html, body {
   gap: 2px;
   transition: all 0.18s var(--ease-pop);
   box-shadow: 3px 3px 0 var(--outline);
+  min-width: 0;
 }
 
 .life-btn:hover {
@@ -666,32 +738,34 @@ html, body {
 
 .life-btn-title {
   font-family: var(--f-display);
-  font-size: 1.2rem;
+  font-size: clamp(0.85rem, 2.6vw, 1.2rem);
   letter-spacing: 1px;
+  white-space: nowrap;
 }
 
 .life-btn-sub {
   font-family: var(--f-ui);
-  font-size: 0.6rem;
-  letter-spacing: 1.5px;
+  font-size: clamp(0.52rem, 1.4vw, 0.6rem);
+  letter-spacing: clamp(0.8px, 0.2vw, 1.5px);
   opacity: 0.7;
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
 /* ---- Start Actions ---- */
 .start-actions, .pause-actions, .gameover-actions {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: clamp(0.5rem, 1.5vh, 0.75rem);
   width: 100%;
 }
 
 /* ---- Buttons ---- */
 .btn {
   font-family: var(--f-display);
-  font-size: 1.3rem;
+  font-size: clamp(1rem, 3vw, 1.3rem);
   letter-spacing: 1.5px;
-  padding: 0.9rem 2rem;
+  padding: clamp(0.65rem, 1.8vw, 0.9rem) clamp(1rem, 3.5vw, 2rem);
   border-radius: 10px;
   border: var(--outline-w) solid var(--outline);
   cursor: pointer;
@@ -702,8 +776,8 @@ html, body {
   transition: all 0.15s var(--ease-pop);
   position: relative;
   overflow: hidden;
-  /* Hard shadow */
-  box-shadow: 5px 5px 0 var(--outline);
+  box-shadow: clamp(3px, 1vw, 5px) clamp(3px, 1vw, 5px) 0 var(--outline);
+  width: 100%;
 }
 
 .btn:active {
@@ -735,15 +809,11 @@ html, body {
   box-shadow: 7px 7px 0 var(--outline);
 }
 
-.btn-glow {
-  /* Handled by btn-primary hover */
-}
-
 .btn-secondary {
   background: var(--surface-2);
   border: 2.5px solid var(--border);
   color: var(--text);
-  font-size: 1rem;
+  font-size: clamp(0.85rem, 2.2vw, 1rem);
 }
 
 .btn-secondary:hover {
@@ -756,7 +826,7 @@ html, body {
 
 .btn-subtext {
   font-family: var(--f-ui);
-  font-size: 0.72rem;
+  font-size: clamp(0.62rem, 1.5vw, 0.72rem);
   letter-spacing: 1px;
   opacity: 0.75;
   font-weight: 400;
@@ -765,11 +835,12 @@ html, body {
 
 /* Audio / Theme toggle row */
 .audio-toggle-container {
-  margin-top: 1.4rem;
+  margin-top: clamp(0.8rem, 2vh, 1.4rem);
   display: flex;
-  gap: 1.5rem;
+  gap: clamp(0.75rem, 3vw, 1.5rem);
   justify-content: center;
   align-items: center;
+  flex-wrap: wrap;
 }
 
 .btn-text-icon {
@@ -777,13 +848,14 @@ html, body {
   border: none;
   color: var(--text-dim);
   font-family: var(--f-ui);
-  font-size: 0.9rem;
+  font-size: clamp(0.75rem, 2vw, 0.9rem);
   letter-spacing: 1px;
   cursor: pointer;
   display: flex;
   align-items: center;
   gap: 0.45rem;
   transition: color 0.2s ease;
+  white-space: nowrap;
 }
 
 .btn-text-icon:hover {
@@ -793,41 +865,44 @@ html, body {
 /* ===================== Pause Screen ===================== */
 .pause-card {
   max-width: 420px;
+  width: min(94vw, 420px);
 }
 
 .pause-card h2 {
   font-family: var(--f-display);
-  font-size: 2.8rem;
+  font-size: clamp(2rem, 7vw, 2.8rem);
   letter-spacing: 3px;
   color: var(--cyan);
   text-shadow:
     4px 4px 0 var(--outline),
     -1px -1px 0 var(--outline);
-  margin-bottom: 1.6rem;
+  margin-bottom: clamp(1rem, 2.5vh, 1.6rem);
 }
 
 .pause-actions {
-  gap: 0.65rem;
+  gap: clamp(0.45rem, 1.2vh, 0.65rem);
 }
 
 /* ===================== Game Over Screen ===================== */
 .gameover-card {
   position: relative;
   max-width: 500px;
+  width: min(94vw, 500px);
 }
 
 .new-record-tag {
   background: linear-gradient(135deg, var(--yellow), var(--orange));
   color: var(--outline);
   font-family: var(--f-display);
-  font-size: 1.1rem;
+  font-size: clamp(0.85rem, 2.5vw, 1.1rem);
   letter-spacing: 2px;
-  padding: 5px 18px;
+  padding: 5px clamp(10px, 2.5vw, 18px);
   border-radius: 20px;
   border: 2.5px solid var(--outline);
-  margin-bottom: 0.9rem;
+  margin-bottom: clamp(0.5rem, 1.5vh, 0.9rem);
   box-shadow: 4px 4px 0 var(--outline);
   animation: recordPulse 1.2s ease-in-out infinite;
+  white-space: nowrap;
 }
 
 @keyframes recordPulse {
@@ -837,14 +912,14 @@ html, body {
 
 .gameover-title {
   font-family: var(--f-display);
-  font-size: 4rem;
-  letter-spacing: 4px;
+  font-size: clamp(2.5rem, 9vw, 4rem);
+  letter-spacing: clamp(2px, 0.8vw, 4px);
   color: var(--red);
   text-shadow:
-    5px 5px 0 var(--outline),
+    clamp(3px, 0.8vw, 5px) clamp(3px, 0.8vw, 5px) 0 var(--outline),
     -1px -1px 0 var(--outline),
     0 0 30px rgba(255, 34, 68, 0.5);
-  margin-bottom: 1.5rem;
+  margin-bottom: clamp(0.8rem, 2vh, 1.5rem);
   animation: crashShake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) forwards;
 }
 
@@ -862,8 +937,8 @@ html, body {
   background: var(--surface-2);
   border: 2.5px solid var(--border);
   border-radius: 12px;
-  padding: 1rem 1.4rem;
-  margin-bottom: 1.5rem;
+  padding: clamp(0.6rem, 2vw, 1rem) clamp(0.8rem, 2.5vw, 1.4rem);
+  margin-bottom: clamp(0.8rem, 2vh, 1.5rem);
   display: flex;
   flex-direction: column;
   gap: 0;
@@ -875,10 +950,11 @@ html, body {
   justify-content: space-between;
   align-items: center;
   font-family: var(--f-body);
-  font-size: 0.92rem;
+  font-size: clamp(0.78rem, 2vw, 0.92rem);
   color: var(--text-dim);
-  padding: 0.55rem 0;
+  padding: clamp(0.35rem, 1vh, 0.55rem) 0;
   border-bottom: 1px solid var(--border);
+  gap: 0.5rem;
 }
 
 .stat-row:last-child {
@@ -887,7 +963,7 @@ html, body {
 
 .stat-row strong {
   font-family: var(--f-display);
-  font-size: 1.2rem;
+  font-size: clamp(0.95rem, 2.6vw, 1.2rem);
   letter-spacing: 0.5px;
   color: var(--text);
 }
@@ -895,7 +971,8 @@ html, body {
 /* ===================== Shop Modal ===================== */
 .shop-card {
   max-width: 720px;
-  padding: 2rem;
+  width: min(94vw, 720px);
+  padding: clamp(1rem, 3vw, 2rem);
   align-items: stretch;
   text-align: left;
 }
@@ -904,14 +981,16 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 1.4rem;
-  padding-bottom: 1rem;
+  margin-bottom: clamp(0.8rem, 2vh, 1.4rem);
+  padding-bottom: clamp(0.6rem, 1.5vh, 1rem);
   border-bottom: 2px solid var(--border);
+  gap: var(--space-sm);
+  flex-wrap: wrap;
 }
 
 .shop-header h2 {
   font-family: var(--f-display);
-  font-size: 1.8rem;
+  font-size: clamp(1.3rem, 4vw, 1.8rem);
   letter-spacing: 2px;
   color: var(--yellow);
   text-shadow: 3px 3px 0 var(--outline);
@@ -919,22 +998,24 @@ html, body {
 
 .shop-coins {
   font-family: var(--f-display);
-  font-size: 1.3rem;
+  font-size: clamp(1rem, 3vw, 1.3rem);
   color: var(--orange);
   display: flex;
   align-items: center;
   gap: 0.4rem;
   text-shadow: 2px 2px 0 var(--outline);
+  white-space: nowrap;
 }
 
 .close-btn {
   background: none;
   border: none;
   color: var(--text-dim);
-  font-size: 1.8rem;
+  font-size: clamp(1.4rem, 4vw, 1.8rem);
   line-height: 1;
   cursor: pointer;
   transition: color 0.2s ease, transform 0.15s ease;
+  padding: 0.25rem;
 }
 
 .close-btn:hover {
@@ -944,8 +1025,9 @@ html, body {
 
 .shop-tabs {
   display: flex;
-  gap: 0.7rem;
-  margin-bottom: 1.4rem;
+  gap: clamp(0.4rem, 1.5vw, 0.7rem);
+  margin-bottom: clamp(0.8rem, 2vh, 1.4rem);
+  flex-wrap: wrap;
 }
 
 .shop-tab {
@@ -953,13 +1035,14 @@ html, body {
   border: 2px solid var(--border);
   color: var(--text-dim);
   font-family: var(--f-ui);
-  font-size: 0.85rem;
+  font-size: clamp(0.72rem, 1.8vw, 0.85rem);
   letter-spacing: 1px;
-  padding: 0.55rem 1.2rem;
+  padding: clamp(0.4rem, 1vw, 0.55rem) clamp(0.7rem, 2vw, 1.2rem);
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.18s ease;
   box-shadow: 2px 2px 0 var(--outline);
+  white-space: nowrap;
 }
 
 .shop-tab.active,
@@ -976,19 +1059,20 @@ html, body {
 .upgrade-grid {
   display: flex;
   flex-direction: column;
-  gap: 0.85rem;
+  gap: clamp(0.6rem, 1.8vw, 0.85rem);
 }
 
 .upgrade-card {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: clamp(0.6rem, 1.8vw, 1rem);
   background: var(--surface-2);
   border: 2px solid var(--border);
-  padding: 0.9rem 1.1rem;
+  padding: clamp(0.6rem, 1.5vw, 0.9rem) clamp(0.7rem, 2vw, 1.1rem);
   border-radius: 12px;
   box-shadow: 3px 3px 0 var(--outline);
   transition: all 0.15s ease;
+  min-width: 0;
 }
 
 .upgrade-card:hover {
@@ -998,11 +1082,11 @@ html, body {
 }
 
 .upg-icon {
-  font-size: 1.8rem;
+  font-size: clamp(1.4rem, 3.5vw, 1.8rem);
   background: rgba(255, 224, 51, 0.08);
   border: 2px solid var(--border);
-  width: 52px;
-  height: 52px;
+  width: clamp(40px, 8vw, 52px);
+  height: clamp(40px, 8vw, 52px);
   border-radius: 10px;
   display: flex;
   align-items: center;
@@ -1011,19 +1095,22 @@ html, body {
   box-shadow: 2px 2px 0 var(--outline);
 }
 
-.upg-info { flex: 1; }
+.upg-info { flex: 1; min-width: 0; }
 
 .upg-info h3 {
   font-family: var(--f-display);
-  font-size: 1.1rem;
+  font-size: clamp(0.9rem, 2.4vw, 1.1rem);
   letter-spacing: 1px;
   color: var(--text);
   margin-bottom: 0.2rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .upg-info p {
   font-family: var(--f-body);
-  font-size: 0.82rem;
+  font-size: clamp(0.72rem, 1.8vw, 0.82rem);
   color: var(--text-dim);
   margin-bottom: 0.5rem;
 }
@@ -1031,10 +1118,11 @@ html, body {
 .upg-level-bar {
   display: flex;
   gap: 4px;
+  flex-wrap: wrap;
 }
 
 .upg-level-bar .bar {
-  width: 22px;
+  width: clamp(14px, 3vw, 22px);
   height: 6px;
   background: var(--border);
   border-radius: 3px;
@@ -1046,8 +1134,8 @@ html, body {
 }
 
 .btn-sm {
-  padding: 0.5rem 0.9rem;
-  font-size: 1rem;
+  padding: clamp(0.35rem, 1vw, 0.5rem) clamp(0.6rem, 1.8vw, 0.9rem);
+  font-size: clamp(0.85rem, 2vw, 1rem);
 }
 
 .btn-upgrade {
@@ -1056,12 +1144,14 @@ html, body {
   border: 2px solid var(--outline);
   border-radius: 8px;
   font-family: var(--f-display);
-  font-size: 1rem;
+  font-size: clamp(0.85rem, 2vw, 1rem);
   letter-spacing: 1px;
   cursor: pointer;
   box-shadow: 3px 3px 0 var(--outline);
   transition: all 0.15s var(--ease-pop);
-  padding: 0.5rem 1rem;
+  padding: clamp(0.4rem, 1vw, 0.5rem) clamp(0.6rem, 1.8vw, 1rem);
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .btn-upgrade:hover {
@@ -1084,14 +1174,14 @@ html, body {
 /* Skins Grid */
 .skins-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 0.85rem;
+  grid-template-columns: repeat(auto-fill, minmax(clamp(120px, 28vw, 160px), 1fr));
+  gap: clamp(0.5rem, 1.5vw, 0.85rem);
 }
 
 .skin-card {
   background: var(--surface-2);
   border: 2px solid var(--border);
-  padding: 1rem;
+  padding: clamp(0.6rem, 1.8vw, 1rem);
   border-radius: 12px;
   display: flex;
   flex-direction: column;
@@ -1115,8 +1205,8 @@ html, body {
 }
 
 .skin-preview-swatch {
-  width: 48px;
-  height: 48px;
+  width: clamp(36px, 8vw, 48px);
+  height: clamp(36px, 8vw, 48px);
   border-radius: 50%;
   border: 3px solid var(--outline);
   box-shadow: 0 0 12px currentColor;
@@ -1124,7 +1214,7 @@ html, body {
 
 .skin-name {
   font-family: var(--f-display);
-  font-size: 1rem;
+  font-size: clamp(0.82rem, 2vw, 1rem);
   letter-spacing: 1px;
   color: var(--text);
 }
@@ -1154,6 +1244,7 @@ body.light-theme {
 body.light-theme .screen-overlay {
   background: rgba(180, 200, 230, 0.85);
   backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
 }
 
 /* ---- Cards & Panels ---- */
@@ -1337,3 +1428,250 @@ body.light-theme .hud-badge {
   border-color: var(--outline);
 }
 
+/* ============================================================
+   RESPONSIVE MEDIA QUERIES
+   ============================================================ */
+
+/* ── Mobile / Tablet Breakdown (< 768px) ── */
+@media (max-width: 768px) {
+  .hud-top-bar {
+    gap: 0.35rem;
+    flex-wrap: wrap;
+  }
+
+  .distance-box {
+    display: none;
+  }
+
+  .hud-powerups-container {
+    max-width: 45vw;
+  }
+
+  .hud-bottom-bar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .level-indicator {
+    max-width: 85vw;
+  }
+
+  .screen-overlay {
+    align-items: flex-start;
+    padding: 0.75rem;
+    padding-top: max(0.75rem, env(safe-area-inset-top));
+    padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+  }
+
+  .glass-card {
+    max-height: 92dvh;
+    padding: 1.5rem 1.25rem;
+  }
+
+  .shop-card {
+    max-width: 100%;
+  }
+
+  .upgrade-card {
+    flex-wrap: wrap;
+  }
+
+  .btn-upgrade {
+    width: 100%;
+    text-align: center;
+    padding: 0.6rem;
+  }
+}
+
+/* ── Tiny phones (< 480px) ── */
+@media (max-width: 480px) {
+  .hud-top-bar {
+    gap: 0.3rem;
+  }
+
+  .hud-box {
+    padding: 0.3rem 0.55rem;
+    border-radius: 8px;
+  }
+
+  .score-box {
+    min-width: 68px;
+  }
+
+  .lives-box {
+    min-width: 58px;
+  }
+
+  .coin-box {
+    min-width: 50px;
+  }
+
+  .glass-card {
+    padding: 1.25rem 0.9rem;
+    border-radius: 14px;
+  }
+
+  .skins-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .audio-toggle-container {
+    gap: 0.8rem;
+  }
+}
+
+/* ── Ultra small phones (< 360px) ── */
+@media (max-width: 360px) {
+  .hud-label {
+    display: none;
+  }
+
+  .hud-box {
+    padding: 0.25rem 0.4rem;
+  }
+
+  .coin-box {
+    display: none;
+  }
+
+  .icon-btn {
+    width: 36px;
+    height: 36px;
+    font-size: 0.95rem;
+  }
+
+  .touch-zone {
+    width: 52px;
+    height: 52px;
+    font-size: 1.3rem;
+  }
+
+  .touch-btn {
+    padding: 0.5rem 0.8rem;
+    font-size: 0.8rem;
+  }
+
+  .life-btn {
+    padding: 0.35rem 0.15rem;
+  }
+
+  .life-btn-title {
+    font-size: 0.8rem;
+  }
+
+  .life-btn-sub {
+    font-size: 0.5rem;
+  }
+}
+
+/* ── Tablet (769px - 1024px) ── */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .hud-layer {
+    padding: 1rem 1.25rem;
+  }
+
+  .glass-card {
+    max-width: 520px;
+  }
+
+  .skins-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  }
+}
+
+/* ── Desktop (1025px+) ── */
+@media (min-width: 1025px) {
+  .hud-layer {
+    padding: 1.25rem 1.75rem;
+  }
+
+  .hud-top-bar {
+    flex-wrap: nowrap;
+    gap: 0.85rem;
+  }
+}
+
+/* ── Landscape phone or short viewport (< 500px height) ── */
+@media (max-height: 500px) and (orientation: landscape) {
+  .glass-card {
+    padding: 0.6rem 1.2rem;
+    max-height: 96dvh;
+  }
+
+  .glitch-title {
+    font-size: clamp(1.6rem, 7vh, 2.2rem);
+    margin-bottom: 0.15rem;
+  }
+
+  .game-badge {
+    margin-bottom: 0.3rem;
+    padding: 2px 8px;
+    font-size: 0.65rem;
+  }
+
+  .subtitle {
+    display: none;
+  }
+
+  .high-score-banner {
+    margin-bottom: 0.4rem;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.8rem;
+  }
+
+  .life-mode-container {
+    margin-bottom: 0.5rem;
+    gap: 0.2rem;
+  }
+
+  .life-btn {
+    padding: 0.3rem 0.5rem;
+  }
+
+  .life-btn-title {
+    font-size: 0.85rem;
+  }
+
+  .audio-toggle-container {
+    margin-top: 0.4rem;
+    gap: 1rem;
+  }
+
+  .mobile-touch-layer {
+    height: clamp(65px, 20vh, 90px);
+    bottom: 0.4rem;
+  }
+
+  .touch-zone {
+    width: 54px;
+    height: 54px;
+  }
+
+  .touch-btn {
+    padding: 0.5rem 1.2rem;
+  }
+
+  .hud-layer {
+    padding: 0.4rem 0.8rem;
+  }
+
+  .hud-bottom-bar {
+    display: none;
+  }
+}
+
+/* ── Safe Area Inset Support (Notches, Home Indicator) ── */
+@supports (padding: env(safe-area-inset-top)) {
+  .hud-layer {
+    padding-top: max(clamp(0.5rem, 2vw, 1.25rem), env(safe-area-inset-top));
+    padding-left: max(clamp(0.6rem, 2.5vw, 1.5rem), env(safe-area-inset-left));
+    padding-right: max(clamp(0.6rem, 2.5vw, 1.5rem), env(safe-area-inset-right));
+    padding-bottom: max(clamp(0.5rem, 2vw, 1.25rem), env(safe-area-inset-bottom));
+  }
+
+  .mobile-touch-layer {
+    bottom: max(clamp(0.75rem, 2.5vh, 1.5rem), env(safe-area-inset-bottom));
+    left: max(clamp(0.75rem, 3vw, 1.5rem), env(safe-area-inset-left));
+    right: max(clamp(0.75rem, 3vw, 1.5rem), env(safe-area-inset-right));
+  }
+}
