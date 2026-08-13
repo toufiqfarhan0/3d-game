@@ -179,10 +179,14 @@ export class Game {
     bindUpgBtn('multiplier');
 
     // Sound Toggle
-    document.getElementById('btn-toggle-sound')?.addEventListener('click', () => {
+    const handleSoundToggle = () => {
       this.soundMgr.toggleMute();
-      this.uiMgr.updateStartScreen();
-    });
+      this.uiMgr.updateSoundUI();
+    };
+
+    document.getElementById('btn-toggle-sound')?.addEventListener('click', handleSoundToggle);
+    document.getElementById('btn-toggle-sound-hud')?.addEventListener('click', handleSoundToggle);
+    document.getElementById('btn-toggle-sound-pause')?.addEventListener('click', handleSoundToggle);
 
     // Theme Toggle Buttons
     const handleThemeToggle = () => {

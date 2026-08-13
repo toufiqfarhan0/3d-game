@@ -112,14 +112,35 @@ export class UIManager {
     }
   }
 
-  public updateStartScreen() {
-    this.startHighScore.textContent = String(this.scoreMgr.highScore);
+  public updateSoundUI() {
+    const isMuted = this.soundMgr.getIsMuted();
+
+    // Start screen sound button
     const soundLabel = document.getElementById('sound-label');
     const soundIcon = document.getElementById('sound-icon');
     if (soundLabel && soundIcon) {
-      soundLabel.textContent = `SOUND: ${this.soundMgr.getIsMuted() ? 'OFF' : 'ON'}`;
-      soundIcon.textContent = this.soundMgr.getIsMuted() ? '🔇' : '🔊';
+      soundLabel.textContent = `SOUND: ${isMuted ? 'OFF' : 'ON'}`;
+      soundIcon.textContent = isMuted ? '🔇' : '🔊';
     }
+
+    // HUD top bar sound button
+    const soundIconHud = document.getElementById('sound-icon-hud');
+    if (soundIconHud) {
+      soundIconHud.textContent = isMuted ? '🔇' : '🔊';
+    }
+
+    // Pause menu sound button
+    const soundLabelPause = document.getElementById('sound-label-pause');
+    const soundIconPause = document.getElementById('sound-icon-pause');
+    if (soundLabelPause && soundIconPause) {
+      soundLabelPause.textContent = `SOUND: ${isMuted ? 'OFF' : 'ON'}`;
+      soundIconPause.textContent = isMuted ? '🔇' : '🔊';
+    }
+  }
+
+  public updateStartScreen() {
+    this.startHighScore.textContent = String(this.scoreMgr.highScore);
+    this.updateSoundUI();
     this.applyThemeUI();
   }
 
@@ -138,10 +159,12 @@ export class UIManager {
     this.gameoverModal.classList.add('hidden');
     this.shopModal.classList.add('hidden');
     this.hudOverlay.classList.remove('hidden');
+    this.updateSoundUI();
   }
 
   public showPauseModal() {
     this.pauseModal.classList.remove('hidden');
+    this.updateSoundUI();
   }
 
   public hidePauseModal() {
