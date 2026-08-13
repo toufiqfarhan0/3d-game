@@ -46,12 +46,13 @@ export class Game {
 
   private ambientLight!: THREE.AmbientLight;
   private hemiLight!: THREE.HemisphereLight;
+  private groundMesh!: THREE.Mesh;
+  private groundMat!: THREE.MeshStandardMaterial;
 
   private initThreeJS() {
     this.scene = new THREE.Scene();
-    this.scene.background = new THREE.Color(0x050713);
-    // Reduced fog density so obstacles are clearly visible from further away
-    this.scene.fog = new THREE.FogExp2(0x050713, 0.006);
+    this.scene.background = new THREE.Color(0x131729);
+    this.scene.fog = new THREE.FogExp2(0x131729, 0.007);
 
     this.renderer = new THREE.WebGLRenderer({
       canvas: this.canvas,
@@ -62,50 +63,115 @@ export class Game {
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     this.renderer.shadowMap.enabled = true;
     this.renderer.shadowMap.type = THREE.PCFShadowMap;
-
-    // ACES Filmic Tone Mapping for vibrant neon glow pop
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    this.renderer.toneMappingExposure = 1.25;
+    this.renderer.toneMappingExposure = 1.3;
 
-    // Ambient Lighting & Hemisphere Cyan/Magenta Sci-Fi Fill Light
-    this.ambientLight = new THREE.AmbientLight(0xffffff, 0.85);
+    // ── LIGHTING ──────────────────────────────────────────────────
+    // Ambient fill
+    this.ambientLight = new THREE.AmbientLight(0xffffff, 0.9);
     this.scene.add(this.ambientLight);
 
-    this.hemiLight = new THREE.HemisphereLight(0x00f0ff, 0xaa00ff, 0.6);
+    // Hemisphere: warm cyan sky, deep indigo ground
+    this.hemiLight = new THREE.HemisphereLight(0x5ad4ff, 0x3a1fa0, 1.0);
     this.scene.add(this.hemiLight);
 
-    const dirLight = new THREE.DirectionalLight(0xffffff, 1.4);
-    dirLight.position.set(20, 40, 20);
+    // Main directional light — sharp shadows
+    const dirLight = new THREE.DirectionalLight(0xfff4e0, 1.6);
+    dirLight.position.set(15, 40, 20);
     dirLight.castShadow = true;
-    dirLight.shadow.mapSize.width = 1024;
+    dirLight.shadow.mapSize.width  = 1024;
     dirLight.shadow.mapSize.height = 1024;
     dirLight.shadow.camera.near = 1;
-    dirLight.shadow.camera.far = 100;
-    dirLight.shadow.camera.left = -15;
-    dirLight.shadow.camera.right = 15;
-    dirLight.shadow.camera.top = 20;
-    dirLight.shadow.camera.bottom = -15;
+    dirLight.shadow.camera.far  = 120;
+    dirLight.shadow.camera.left   = -20;
+    dirLight.shadow.camera.right  = 20;
+    dirLight.shadow.camera.top    = 25;
+    dirLight.shadow.camera.bottom = -20;
     this.scene.add(dirLight);
     (this as any).dirLight = dirLight;
+
+    // Rim light from behind for depth
+    const rimLight = new THREE.DirectionalLight(0x4466ff, 0.5);
+    rimLight.position.set(-10, 10, -20);
+    this.scene.add(rimLight);
+
+    // ── WIDE GROUND PLANE ─────────────────────────────────────────
+    // Extends far on both sides giving a city-block feel
+    const groundGeo = new THREE.PlaneGeometry(300, 2000, 1, 1);
+    this.groundMat = new THREE.MeshStandardMaterial({
+      color: 0x0e1228,
+      roughness: 0.8,
+      metalness: 0.2,
+    });
+    this.groundMesh = new THREE.Mesh(groundGeo, this.groundMat);
+    this.groundMesh.rotation.x = -Math.PI / 2;
+    this.groundMesh.position.set(0, -0.05, 1000);
+    this.groundMesh.receiveShadow = true;
+    this.scene.add(this.groundMesh);
+
+    // ── STARFIELD ─────────────────────────────────────────────────
+    this.buildStarfield();
+  }
+
+  private buildStarfield() {
+    const count = 1200;
+    const positions = new Float32Array(count * 3);
+    const colors    = new Float32Array(count * 3);
+    const starColors = [
+      new THREE.Color(0xffffff),
+      new THREE.Color(0xaaccff),
+      new THREE.Color(0xffeebb),
+      new THREE.Color(0x88aaff),
+    ];
+    for (let i = 0; i < count; i++) {
+      positions[i * 3]     = (Math.random() - 0.5) * 600;
+      positions[i * 3 + 1] = 20 + Math.random() * 200;
+      positions[i * 3 + 2] = (Math.random() - 0.5) * 3000;
+      const c = starColors[Math.floor(Math.random() * starColors.length)];
+      colors[i * 3]     = c.r;
+      colors[i * 3 + 1] = c.g;
+      colors[i * 3 + 2] = c.b;
+    }
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    geo.setAttribute('color',    new THREE.BufferAttribute(colors,    3));
+    const mat = new THREE.PointsMaterial({
+      size: 0.5,
+      vertexColors: true,
+      transparent: true,
+      opacity: 0.85,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    });
+    const stars = new THREE.Points(geo, mat);
+    this.scene.add(stars);
+    (this as any).starfield = stars;
   }
 
   public setTheme(theme: 'dark' | 'light') {
     const isLight = theme === 'light';
-    const bgHex = isLight ? 0xe2e8f0 : 0x050713;
+    const bgHex = isLight ? 0xb8d4f0 : 0x131729;
 
     this.scene.background = new THREE.Color(bgHex);
-    this.scene.fog = new THREE.FogExp2(bgHex, 0.006);
+    this.scene.fog = new THREE.FogExp2(bgHex, isLight ? 0.005 : 0.007);
 
     if (this.ambientLight) {
-      this.ambientLight.intensity = isLight ? 1.0 : 0.85;
+      this.ambientLight.intensity = isLight ? 1.4 : 0.9;
     }
-
     if (this.hemiLight) {
-      this.hemiLight.color.setHex(isLight ? 0xffffff : 0x00f0ff);
-      this.hemiLight.groundColor.setHex(isLight ? 0x64748b : 0xaa00ff);
-      this.hemiLight.intensity = isLight ? 0.9 : 0.6;
+      this.hemiLight.color.setHex(isLight ? 0xffffff : 0x5ad4ff);
+      this.hemiLight.groundColor.setHex(isLight ? 0xd4c09a : 0x3a1fa0); // warm sand ground for day
+      this.hemiLight.intensity = isLight ? 1.2 : 1.0;
     }
-
+    if (this.groundMat) {
+      this.groundMat.color.setHex(isLight ? 0xc8d4e0 : 0x0e1228);
+      this.groundMat.roughness = isLight ? 0.9 : 0.8;
+      this.groundMat.metalness = isLight ? 0.0 : 0.2;
+      this.groundMat.needsUpdate = true;
+    }
+    if ((this as any).starfield) {
+      (this as any).starfield.visible = !isLight;
+    }
     if (this.trackMgr) {
       this.trackMgr.setTheme(theme);
     }
@@ -259,11 +325,16 @@ export class Game {
     // Track directional shadow light to follow player
     if ((this as any).dirLight) {
       (this as any).dirLight.position.set(
-        this.player.mesh.position.x + 20,
+        this.player.mesh.position.x + 15,
         40,
         this.player.mesh.position.z + 20
       );
       (this as any).dirLight.target = this.player.mesh;
+    }
+
+    // Slide ground plane forward so it never falls behind the camera
+    if (this.groundMesh) {
+      this.groundMesh.position.z = this.player.mesh.position.z + 500;
     }
 
     // Update active powerups state on player
@@ -329,6 +400,9 @@ export class Game {
     });
 
     // 7. Particle Effects & Speed Lines
+    if (this.player.isSliding) {
+      this.particleMgr.spawnSlideSparks(this.player.mesh.position);
+    }
     this.particleMgr.spawnSpeedLines(this.cameraMgr.camera.position);
     this.particleMgr.update(dt);
 

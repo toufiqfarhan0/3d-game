@@ -15,30 +15,35 @@ export class Player {
   public mesh: THREE.Group;
   public boundingBox: THREE.Box3 = new THREE.Box3();
   
-  private laneIndex: number = 1; // 0: Left, 1: Center, 2: Right
+  private laneIndex: number = 1;
   private targetX: number = LANE_X_POSITIONS[1];
   private currentX: number = LANE_X_POSITIONS[1];
 
   // Physics state
   private posY: number = 0;
   private velY: number = 0;
-  private gravity: number = -42;
-  private jumpForce: number = 17;
+  private gravity: number = -44;
+  private jumpForce: number = 17.5;
   private isGrounded: boolean = true;
 
   // Slide state
-  private isSliding: boolean = false;
+  public isSliding: boolean = false;
   private slideTimer: number = 0;
-  private slideDuration: number = 0.65; // seconds
+  private slideDuration: number = 0.65;
 
-  // Mesh Parts for animation
-  private torsoMesh!: THREE.Mesh;
-  private headMesh!: THREE.Mesh;
-  private visorMesh!: THREE.Mesh;
+  // Hierarchical Body Rig for Realistic Skeletal Animation
+  private bodyRoot!: THREE.Group;
+  private torsoGroup!: THREE.Group;
+  private headGroup!: THREE.Group;
+  private leftArmGroup!: THREE.Group;
+  private rightArmGroup!: THREE.Group;
   private leftLegGroup!: THREE.Group;
   private rightLegGroup!: THREE.Group;
+  private leftShinGroup!: THREE.Group;
+  private rightShinGroup!: THREE.Group;
   private shieldMesh!: THREE.Mesh;
-  private thrusterGlow!: THREE.PointLight;
+  private thrusterLight!: THREE.PointLight;
+  private jetFlameMesh!: THREE.Mesh;
 
   // Active Powerups State
   public shieldActive: boolean = false;
@@ -48,11 +53,11 @@ export class Player {
   public maxLives: number = 3;
   public isInvincible: boolean = false;
   private invincibilityTimer: number = 0;
-  private invincibilityDuration: number = 1.5; // seconds
+  private invincibilityDuration: number = 1.5;
 
   // Current Skin Colors
-  private primaryColor: number = 0x00f0ff;
-  private glowColor: number = 0x00ffff;
+  private primaryColor: number = 0x0284c7; // Tactical Cyan/Blue
+  private glowColor: number = 0x38bdf8;
 
   constructor(scene: THREE.Scene) {
     this.mesh = new THREE.Group();
@@ -62,106 +67,232 @@ export class Player {
   }
 
   private createPlayerMesh() {
-    // Clear existing
     while (this.mesh.children.length > 0) {
       this.mesh.remove(this.mesh.children[0]);
     }
 
-    const primaryMat = new THREE.MeshStandardMaterial({
+    this.bodyRoot = new THREE.Group();
+    this.mesh.add(this.bodyRoot);
+
+    // Realistic Carbon & Armor Materials
+    const armorMat = new THREE.MeshStandardMaterial({
       color: this.primaryColor,
-      emissive: this.primaryColor,
-      emissiveIntensity: 0.6,
-      roughness: 0.2,
-      metalness: 0.8
+      metalness: 0.8,
+      roughness: 0.25,
     });
 
-    const darkArmorMat = new THREE.MeshStandardMaterial({
-      color: 0x111625,
+    const carbonSuitMat = new THREE.MeshStandardMaterial({
+      color: 0x18181b,
+      metalness: 0.4,
+      roughness: 0.7,
+    });
+
+    const goldVisorMat = new THREE.MeshStandardMaterial({
+      color: 0xf59e0b,
+      metalness: 0.95,
+      roughness: 0.1,
+      emissive: 0xd97706,
+      emissiveIntensity: 0.3,
+    });
+
+    const jointMat = new THREE.MeshStandardMaterial({
+      color: 0x3f3f46,
+      metalness: 0.9,
       roughness: 0.3,
-      metalness: 0.7
     });
 
-    const glowMat = new THREE.MeshBasicMaterial({
-      color: this.glowColor
+    // ── 1. TORSO & SPINE EXOSKELETON ──────────────────────────────────
+    this.torsoGroup = new THREE.Group();
+    this.torsoGroup.position.y = 1.1;
+    this.bodyRoot.add(this.torsoGroup);
+
+    // Inner undersuit chest
+    const underTorsoGeo = new THREE.BoxGeometry(0.65, 0.7, 0.4);
+    const underTorso = new THREE.Mesh(underTorsoGeo, carbonSuitMat);
+    this.torsoGroup.add(underTorso);
+
+    // Armor Chest Plate with angular chamfer
+    const chestPlateGeo = new THREE.BoxGeometry(0.72, 0.45, 0.25);
+    const chestPlate = new THREE.Mesh(chestPlateGeo, armorMat);
+    chestPlate.position.set(0, 0.12, 0.16);
+    this.torsoGroup.add(chestPlate);
+
+    // Core Power Arc Reactor
+    const reactorGeo = new THREE.CylinderGeometry(0.08, 0.08, 0.06, 12);
+    const reactorMat = new THREE.MeshBasicMaterial({ color: this.glowColor });
+    const reactor = new THREE.Mesh(reactorGeo, reactorMat);
+    reactor.rotation.x = Math.PI / 2;
+    reactor.position.set(0, 0.12, 0.28);
+    this.torsoGroup.add(reactor);
+
+    // Spine Column Exoskeleton vertebrae
+    [-0.2, -0.05, 0.1, 0.25].forEach(sy => {
+      const vertGeo = new THREE.BoxGeometry(0.2, 0.08, 0.12);
+      const vert = new THREE.Mesh(vertGeo, jointMat);
+      vert.position.set(0, sy, -0.22);
+      this.torsoGroup.add(vert);
     });
 
-    // 1. Torso / Body Armor
-    const torsoGeo = new THREE.BoxGeometry(0.9, 1.2, 0.6);
-    this.torsoMesh = new THREE.Mesh(torsoGeo, primaryMat);
-    this.torsoMesh.position.y = 1.4;
-    this.mesh.add(this.torsoMesh);
+    // Twin Jet Thruster Pack on Back
+    const jetpackGeo = new THREE.BoxGeometry(0.55, 0.5, 0.25);
+    const jetpack = new THREE.Mesh(jetpackGeo, armorMat);
+    jetpack.position.set(0, 0.05, -0.28);
+    this.torsoGroup.add(jetpack);
 
-    // Core Chest Glow
-    const chestCoreGeo = new THREE.BoxGeometry(0.4, 0.5, 0.62);
-    const chestCore = new THREE.Mesh(chestCoreGeo, glowMat);
-    this.torsoMesh.add(chestCore);
+    // Thruster exhaust nozzles
+    [-0.16, 0.16].forEach(jx => {
+      const nozzleGeo = new THREE.CylinderGeometry(0.07, 0.09, 0.18, 8);
+      const nozzle = new THREE.Mesh(nozzleGeo, jointMat);
+      nozzle.position.set(jx, -0.24, -0.28);
+      this.torsoGroup.add(nozzle);
+    });
 
-    // 2. Head & Visor
-    const headGeo = new THREE.BoxGeometry(0.6, 0.5, 0.5);
-    this.headMesh = new THREE.Mesh(headGeo, darkArmorMat);
-    this.headMesh.position.set(0, 0.9, 0);
-    this.torsoMesh.add(this.headMesh);
+    // Jet Flame Glow
+    const flameGeo = new THREE.ConeGeometry(0.12, 0.4, 8);
+    const flameMat = new THREE.MeshBasicMaterial({ color: this.glowColor });
+    this.jetFlameMesh = new THREE.Mesh(flameGeo, flameMat);
+    this.jetFlameMesh.rotation.x = Math.PI;
+    this.jetFlameMesh.position.set(0, -0.4, -0.28);
+    this.torsoGroup.add(this.jetFlameMesh);
 
-    const visorGeo = new THREE.BoxGeometry(0.55, 0.18, 0.52);
-    this.visorMesh = new THREE.Mesh(visorGeo, glowMat);
-    this.visorMesh.position.set(0, 0.05, 0.02);
-    this.headMesh.add(this.visorMesh);
+    this.thrusterLight = new THREE.PointLight(this.glowColor, 2.5, 6);
+    this.thrusterLight.position.set(0, -0.3, -0.5);
+    this.torsoGroup.add(this.thrusterLight);
 
-    // Jetpack Thruster on back
-    const jetpackGeo = new THREE.BoxGeometry(0.6, 0.7, 0.3);
-    const jetpack = new THREE.Mesh(jetpackGeo, darkArmorMat);
-    jetpack.position.set(0, 0, -0.4);
-    this.torsoMesh.add(jetpack);
+    // ── 2. HEAD & AERODYNAMIC HELMET ──────────────────────────────────
+    this.headGroup = new THREE.Group();
+    this.headGroup.position.set(0, 0.55, 0);
+    this.torsoGroup.add(this.headGroup);
 
-    this.thrusterGlow = new THREE.PointLight(this.glowColor, 3, 7);
-    this.thrusterGlow.position.set(0, -0.3, -0.6);
-    this.torsoMesh.add(this.thrusterGlow);
+    // Helmet outer shell
+    const helmetGeo = new THREE.SphereGeometry(0.28, 12, 12);
+    const helmet = new THREE.Mesh(helmetGeo, armorMat);
+    helmet.scale.set(1.0, 1.15, 1.15);
+    this.headGroup.add(helmet);
 
-    // Ground Neon Underglow Light
-    const underglowLight = new THREE.PointLight(this.glowColor, 2.5, 5);
-    underglowLight.position.set(0, 0.2, 0);
-    this.mesh.add(underglowLight);
+    // Seamless Gold Curved Reflective Visor
+    const visorGeo = new THREE.SphereGeometry(0.25, 12, 12, 0, Math.PI, 0, Math.PI * 0.55);
+    const visor = new THREE.Mesh(visorGeo, goldVisorMat);
+    visor.rotation.x = Math.PI / 2;
+    visor.position.set(0, 0.02, 0.08);
+    this.headGroup.add(visor);
 
-    // Neon Footprint Ring
-    const ringGeo = new THREE.RingGeometry(0.6, 0.75, 24);
-    const ringMat = new THREE.MeshBasicMaterial({ color: this.glowColor, side: THREE.DoubleSide });
-    const underglowRing = new THREE.Mesh(ringGeo, ringMat);
-    underglowRing.rotation.x = -Math.PI / 2;
-    underglowRing.position.y = 0.02;
-    this.mesh.add(underglowRing);
+    // Side Ear Comms Antennas
+    [-0.28, 0.28].forEach(ex => {
+      const earGeo = new THREE.CylinderGeometry(0.06, 0.06, 0.08, 8);
+      const ear = new THREE.Mesh(earGeo, jointMat);
+      ear.rotation.z = Math.PI / 2;
+      ear.position.set(ex, 0, 0);
+      this.headGroup.add(ear);
+    });
 
-    // 3. Legs
-    const legGeo = new THREE.BoxGeometry(0.3, 0.8, 0.3);
+    // ── 3. ARTICULATED SPRINT ARMS ────────────────────────────────────
+    // Left Arm
+    this.leftArmGroup = new THREE.Group();
+    this.leftArmGroup.position.set(-0.46, 0.28, 0);
+    this.torsoGroup.add(this.leftArmGroup);
 
+    const shoulderGeo = new THREE.SphereGeometry(0.12, 8, 8);
+    const lShoulder = new THREE.Mesh(shoulderGeo, armorMat);
+    this.leftArmGroup.add(lShoulder);
+
+    const bicepGeo = new THREE.CylinderGeometry(0.09, 0.08, 0.35, 8);
+    const lBicep = new THREE.Mesh(bicepGeo, carbonSuitMat);
+    lBicep.position.y = -0.2;
+    this.leftArmGroup.add(lBicep);
+
+    const forearmGeo = new THREE.BoxGeometry(0.16, 0.38, 0.16);
+    const lForearm = new THREE.Mesh(forearmGeo, armorMat);
+    lForearm.position.set(0, -0.45, 0.08);
+    this.leftArmGroup.add(lForearm);
+
+    // Right Arm
+    this.rightArmGroup = new THREE.Group();
+    this.rightArmGroup.position.set(0.46, 0.28, 0);
+    this.torsoGroup.add(this.rightArmGroup);
+
+    const rShoulder = new THREE.Mesh(shoulderGeo, armorMat);
+    this.rightArmGroup.add(rShoulder);
+
+    const rBicep = new THREE.Mesh(bicepGeo, carbonSuitMat);
+    rBicep.position.y = -0.2;
+    this.rightArmGroup.add(rBicep);
+
+    const rForearm = new THREE.Mesh(forearmGeo, armorMat);
+    rForearm.position.set(0, -0.45, 0.08);
+    this.rightArmGroup.add(rForearm);
+
+    // ── 4. ARTICULATED LEGS & BOOSTER RUNNER BOOTS ─────────────────────
+    // Left Leg
     this.leftLegGroup = new THREE.Group();
-    const leftLeg = new THREE.Mesh(legGeo, darkArmorMat);
-    leftLeg.position.y = -0.4;
-    this.leftLegGroup.position.set(-0.28, 0.8, 0);
-    this.leftLegGroup.add(leftLeg);
-    this.mesh.add(this.leftLegGroup);
+    this.leftLegGroup.position.set(-0.22, -0.35, 0);
+    this.torsoGroup.add(this.leftLegGroup);
 
+    const thighGeo = new THREE.CylinderGeometry(0.12, 0.1, 0.45, 8);
+    const lThigh = new THREE.Mesh(thighGeo, carbonSuitMat);
+    lThigh.position.y = -0.22;
+    this.leftLegGroup.add(lThigh);
+
+    const lKnee = new THREE.Mesh(new THREE.SphereGeometry(0.11, 8, 8), armorMat);
+    lKnee.position.set(0, -0.44, 0.05);
+    this.leftLegGroup.add(lKnee);
+
+    this.leftShinGroup = new THREE.Group();
+    this.leftShinGroup.position.set(0, -0.44, 0);
+    this.leftLegGroup.add(this.leftShinGroup);
+
+    const shinGeo = new THREE.BoxGeometry(0.18, 0.42, 0.2);
+    const lShin = new THREE.Mesh(shinGeo, armorMat);
+    lShin.position.y = -0.22;
+    this.leftShinGroup.add(lShin);
+
+    const bootGeo = new THREE.BoxGeometry(0.2, 0.14, 0.35);
+    const lBoot = new THREE.Mesh(bootGeo, jointMat);
+    lBoot.position.set(0, -0.44, 0.08);
+    this.leftShinGroup.add(lBoot);
+
+    // Right Leg
     this.rightLegGroup = new THREE.Group();
-    const rightLeg = new THREE.Mesh(legGeo, darkArmorMat);
-    rightLeg.position.y = -0.4;
-    this.rightLegGroup.position.set(0.28, 0.8, 0);
-    this.rightLegGroup.add(rightLeg);
-    this.mesh.add(this.rightLegGroup);
+    this.rightLegGroup.position.set(0.22, -0.35, 0);
+    this.torsoGroup.add(this.rightLegGroup);
 
-    // 4. Energy Shield Sphere (hidden by default)
-    const shieldGeo = new THREE.SphereGeometry(1.6, 16, 16);
-    const shieldMat = new THREE.MeshBasicMaterial({
-      color: 0x00f0ff,
+    const rThigh = new THREE.Mesh(thighGeo, carbonSuitMat);
+    rThigh.position.y = -0.22;
+    this.rightLegGroup.add(rThigh);
+
+    const rKnee = new THREE.Mesh(new THREE.SphereGeometry(0.11, 8, 8), armorMat);
+    rKnee.position.set(0, -0.44, 0.05);
+    this.rightLegGroup.add(rKnee);
+
+    this.rightShinGroup = new THREE.Group();
+    this.rightShinGroup.position.set(0, -0.44, 0);
+    this.rightLegGroup.add(this.rightShinGroup);
+
+    const rShin = new THREE.Mesh(shinGeo, armorMat);
+    rShin.position.y = -0.22;
+    this.rightShinGroup.add(rShin);
+
+    const rBoot = new THREE.Mesh(bootGeo, jointMat);
+    rBoot.position.set(0, -0.44, 0.08);
+    this.rightShinGroup.add(rBoot);
+
+    // ── 5. HOLOGRAPHIC FORCEFIELD SHIELD SPHERE ───────────────────────
+    const shieldGeo = new THREE.IcosahedronGeometry(1.4, 2);
+    const shieldMat = new THREE.MeshStandardMaterial({
+      color: 0x38bdf8,
+      emissive: 0x0284c7,
+      emissiveIntensity: 1.2,
       wireframe: true,
       transparent: true,
-      opacity: 0.6
+      opacity: 0.75,
     });
     this.shieldMesh = new THREE.Mesh(shieldGeo, shieldMat);
-    this.shieldMesh.position.y = 1.2;
+    this.shieldMesh.position.y = 0.9;
     this.shieldMesh.visible = false;
-    this.mesh.add(this.shieldMesh);
+    this.bodyRoot.add(this.shieldMesh);
 
-    // Enable shadows
-    this.mesh.traverse((child) => {
+    // Shadows
+    this.mesh.traverse(child => {
       if (child instanceof THREE.Mesh) {
         child.castShadow = true;
         child.receiveShadow = true;
@@ -226,9 +357,10 @@ export class Player {
     this.currentX = lerp(this.currentX, this.targetX, dt * 18);
     this.mesh.position.x = this.currentX;
 
-    // Bank / roll angle when changing lanes
-    const rollAngle = (this.currentX - this.targetX) * 0.15;
-    this.mesh.rotation.z = rollAngle;
+    // Realistic lean / banking angle in turns
+    const rollAngle = (this.currentX - this.targetX) * 0.18;
+    this.bodyRoot.rotation.z = rollAngle;
+    this.bodyRoot.rotation.y = -rollAngle * 0.4;
 
     // 2. Vertical Jump Physics
     if (!this.isGrounded) {
@@ -243,46 +375,70 @@ export class Player {
     }
     this.mesh.position.y = this.posY;
 
-    // 3. Slide Timer & Animation
-    if (this.isSliding) {
+    // 3. Sprint Cycle Skeletal Animation
+    const runCycleSpeed = 16;
+    const runTime = performance.now() * 0.001 * runCycleSpeed;
+
+    if (this.isGrounded && !this.isSliding) {
+      // Forward Sprint Lean
+      this.torsoGroup.rotation.x = 0.22;
+      this.bodyRoot.position.y = Math.sin(runTime * 2) * 0.06;
+
+      // Arm Swings
+      this.leftArmGroup.rotation.x = Math.sin(runTime) * 0.85;
+      this.rightArmGroup.rotation.x = -Math.sin(runTime) * 0.85;
+
+      // Leg Cycles with knee flexion
+      this.leftLegGroup.rotation.x = -Math.sin(runTime) * 0.95;
+      this.rightLegGroup.rotation.x = Math.sin(runTime) * 0.95;
+
+      this.leftShinGroup.rotation.x = Math.max(0, Math.sin(runTime) * 0.8);
+      this.rightShinGroup.rotation.x = Math.max(0, -Math.sin(runTime) * 0.8);
+
+      this.bodyRoot.scale.set(1, 1, 1);
+    } else if (!this.isGrounded) {
+      // In-air Aerodynamic Jump Tuck
+      this.torsoGroup.rotation.x = -0.15;
+      this.leftLegGroup.rotation.x = -0.6;
+      this.rightLegGroup.rotation.x = 0.3;
+      this.leftShinGroup.rotation.x = 0.8;
+      this.rightShinGroup.rotation.x = 0.4;
+
+      this.leftArmGroup.rotation.x = -0.9;
+      this.rightArmGroup.rotation.x = -0.9;
+    } else if (this.isSliding) {
+      // Low Slide Tuck
       this.slideTimer -= dt;
       if (this.slideTimer <= 0) {
         this.isSliding = false;
       }
-      // Duck down mesh scale
-      this.mesh.scale.set(1.1, 0.45, 1.2);
-      this.torsoMesh.rotation.x = 0.5;
-    } else {
-      this.mesh.scale.set(1, 1, 1);
-      this.torsoMesh.rotation.x = 0;
+      this.torsoGroup.rotation.x = 0.75;
+      this.bodyRoot.position.y = -0.4;
+      this.leftLegGroup.rotation.x = 1.1;
+      this.rightLegGroup.rotation.x = 1.1;
+      this.leftShinGroup.rotation.x = 0.4;
+      this.rightShinGroup.rotation.x = 0.4;
+      this.bodyRoot.scale.set(1.1, 0.5, 1.25);
     }
 
-    // 4. Running Legs Animation
-    if (this.isGrounded && !this.isSliding) {
-      const time = performance.now() * 0.015;
-      this.leftLegGroup.rotation.x = Math.sin(time) * 0.7;
-      this.rightLegGroup.rotation.x = -Math.sin(time) * 0.7;
-      this.torsoMesh.position.y = 1.4 + Math.sin(time * 2) * 0.05;
-    } else if (!this.isGrounded) {
-      // Tuck legs in air
-      this.leftLegGroup.rotation.x = -0.5;
-      this.rightLegGroup.rotation.x = 0.4;
+    // 4. Thruster Jet Flame Flicker
+    if (this.jetFlameMesh) {
+      this.jetFlameMesh.scale.y = 0.8 + Math.random() * 0.5;
     }
 
-    // 5. Shield Mesh Rotation & Visibility
+    // 5. Shield Rotation
     if (this.shieldMesh) {
       this.shieldMesh.visible = this.shieldActive;
       if (this.shieldActive) {
-        this.shieldMesh.rotation.y += dt * 3;
-        this.shieldMesh.rotation.z += dt * 2;
+        this.shieldMesh.rotation.y += dt * 2.5;
+        this.shieldMesh.rotation.x += dt * 1.5;
       }
     }
 
-    // 6. Invincibility i-frame Blinking Animation
+    // 6. Invincibility i-frame Blinking
     if (this.isInvincible) {
       this.invincibilityTimer -= dt;
-      const blinkFrequency = 14; // Blinks per second
-      this.mesh.visible = Math.floor(this.invincibilityTimer * blinkFrequency) % 2 === 0;
+      this.mesh.visible = Math.floor(this.invincibilityTimer * 14) % 2 === 0;
 
       if (this.invincibilityTimer <= 0) {
         this.isInvincible = false;
@@ -297,9 +453,9 @@ export class Player {
   private static _sizeBuffer = new THREE.Vector3();
 
   public updateBoundingBox() {
-    const height = this.isSliding ? 0.7 : 1.8;
+    const height = this.isSliding ? 0.8 : 1.9;
     const width = 0.9;
-    const depth = 0.8;
+    const depth = 0.85;
 
     Player._centerBuffer.set(this.mesh.position.x, this.mesh.position.y + height / 2, this.mesh.position.z);
     Player._sizeBuffer.set(width, height, depth);

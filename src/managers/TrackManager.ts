@@ -80,7 +80,7 @@ export class TrackManager {
       this.scene.add(obstacle.mesh);
     });
 
-    // Spawn Energy Orbs on the open lane or over jump barriers
+    // Spawn Energy Cells on the open lane
     const orbLaneX = LANE_X_POSITIONS[openLane];
     for (let i = 0; i < 4; i++) {
       const orbZ = posZ - 6 + i * 3;
@@ -89,8 +89,8 @@ export class TrackManager {
       this.scene.add(orb.mesh);
     }
 
-    // 15% Chance for a rare Power-up
-    if (Math.random() < 0.15) {
+    // 18% Chance for a rare Power-up
+    if (Math.random() < 0.18) {
       const pTypes: CollectibleType[] = ['SHIELD', 'MULTIPLIER'];
       const pType = randomChoice(pTypes);
       const pOrb = new Collectible(pType, orbLaneX, 1.2, posZ + 8);
