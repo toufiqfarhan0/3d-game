@@ -9,6 +9,7 @@ export class UIManager {
   private soundMgr: SoundManager;
 
   public selectedLives: number = 3;
+  public currentTheme: 'dark' | 'light' = 'dark';
 
   // DOM Elements
   private hudOverlay: HTMLElement;
@@ -40,6 +41,11 @@ export class UIManager {
     this.shopMgr = shopMgr;
     this.soundMgr = soundMgr;
 
+    const savedTheme = localStorage.getItem('cyber_runner_theme');
+    if (savedTheme === 'light' || savedTheme === 'dark') {
+      this.currentTheme = savedTheme;
+    }
+
     this.hudOverlay = document.getElementById('hud-overlay')!;
     this.hudScore = document.getElementById('hud-score-val')!;
     this.hudMultiplier = document.getElementById('hud-multiplier')!;
@@ -66,7 +72,44 @@ export class UIManager {
 
     this.initShopTabs();
     this.initLifeModeSelector();
+    this.applyThemeUI();
     this.updateStartScreen();
+  }
+
+  public toggleTheme(onThemeChanged?: (theme: 'dark' | 'light') => void) {
+    this.currentTheme = this.currentTheme === 'dark' ? 'light' : 'dark';
+    localStorage.setItem('cyber_runner_theme', this.currentTheme);
+    this.applyThemeUI();
+    if (onThemeChanged) {
+      onThemeChanged(this.currentTheme);
+    }
+  }
+
+  public applyThemeUI() {
+    const isLight = this.currentTheme === 'light';
+    document.body.classList.toggle('light-theme', isLight);
+
+    // Update Start screen theme button
+    const themeIcon = document.getElementById('theme-icon');
+    const themeLabel = document.getElementById('theme-label');
+    if (themeIcon && themeLabel) {
+      themeIcon.textContent = isLight ? '🌙' : '☀️';
+      themeLabel.textContent = `THEME: ${isLight ? 'LIGHT' : 'DARK'}`;
+    }
+
+    // Update Pause screen theme button
+    const themeIconPause = document.getElementById('theme-icon-pause');
+    const themeLabelPause = document.getElementById('theme-label-pause');
+    if (themeIconPause && themeLabelPause) {
+      themeIconPause.textContent = isLight ? '🌙' : '☀️';
+      themeLabelPause.textContent = `THEME: ${isLight ? 'LIGHT' : 'DARK'}`;
+    }
+
+    // Update HUD theme button
+    const themeIconHud = document.getElementById('theme-icon-hud');
+    if (themeIconHud) {
+      themeIconHud.textContent = isLight ? '🌙' : '☀️';
+    }
   }
 
   public updateStartScreen() {
@@ -77,6 +120,7 @@ export class UIManager {
       soundLabel.textContent = `SOUND: ${this.soundMgr.getIsMuted() ? 'OFF' : 'ON'}`;
       soundIcon.textContent = this.soundMgr.getIsMuted() ? '🔇' : '🔊';
     }
+    this.applyThemeUI();
   }
 
   public showStartScreen() {

@@ -186,24 +186,25 @@ html, body {
 
 .icon-btn {
   background: var(--panel-bg);
-  border: 1px solid var(--panel-border);
+  border: 1.5px solid var(--panel-border);
   color: var(--text-main);
-  width: 44px;
-  height: 44px;
-  border-radius: 8px;
-  font-size: 1.2rem;
+  width: 58px;
+  height: 58px;
+  border-radius: 12px;
+  font-size: 1.6rem;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-left: auto;
   transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 }
 
 .icon-btn:hover {
   border-color: var(--primary-cyan);
-  box-shadow: 0 0 12px rgba(0, 240, 255, 0.4);
-  transform: scale(1.05);
+  box-shadow: 0 0 16px rgba(0, 240, 255, 0.5);
+  transform: scale(1.1);
 }
 
 /* Powerups indicators */
@@ -301,10 +302,10 @@ html, body {
 .mobile-touch-layer {
   display: none;
   position: absolute;
-  bottom: 1.5rem;
-  left: 1.5rem;
-  right: 1.5rem;
-  height: 120px;
+  bottom: 2rem;
+  left: 2rem;
+  right: 2rem;
+  height: 140px;
   justify-content: space-between;
   align-items: center;
   pointer-events: auto;
@@ -320,36 +321,48 @@ html, body {
 }
 
 .touch-zone {
-  width: 70px;
-  height: 70px;
+  width: 90px;
+  height: 90px;
   background: var(--panel-bg);
-  border: 1px solid var(--primary-cyan);
+  backdrop-filter: blur(10px);
+  border: 2px solid var(--primary-cyan);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.5rem;
+  font-size: 2.2rem;
   color: var(--primary-cyan);
-  box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
-  active {
-    transform: scale(0.9);
-  }
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+
+.touch-zone:active {
+  transform: scale(0.9);
 }
 
 .touch-center-zone {
   display: flex;
-  gap: 1rem;
+  gap: 1.2rem;
 }
 
 .touch-btn {
-  padding: 0.8rem 1.4rem;
+  padding: 1.1rem 2rem;
   background: var(--panel-bg);
-  border: 1px solid var(--primary-magenta);
-  border-radius: 20px;
+  backdrop-filter: blur(10px);
+  border: 2px solid var(--primary-magenta);
+  border-radius: 25px;
   font-family: var(--font-heading);
-  font-size: 0.8rem;
-  font-weight: 700;
+  font-size: 1.1rem;
+  font-weight: 800;
   color: var(--primary-magenta);
+  box-shadow: 0 0 15px rgba(255, 0, 127, 0.35);
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+
+.touch-btn:active {
+  transform: scale(0.92);
 }
 
 /* Screen Overlays (Start, Shop, Pause, Game Over) */
@@ -558,6 +571,10 @@ html, body {
 
 .audio-toggle-container {
   margin-top: 1.5rem;
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  align-items: center;
 }
 
 .btn-text-icon {
@@ -825,5 +842,155 @@ html, body {
 
 .stat-row strong {
   font-family: var(--font-heading);
-  color: #fff;
+  color: var(--text-main);
 }
+
+/* Light Theme Overrides */
+body.light-theme {
+  --bg-dark: #eaf0f8;
+  --panel-bg: rgba(255, 255, 255, 0.88);
+  --panel-border: rgba(2, 132, 199, 0.35);
+  --primary-cyan: #0284c7;
+  --primary-magenta: #c026d3;
+  --accent-gold: #d97706;
+  --accent-green: #059669;
+  --text-main: #0f172a;
+  --text-muted: #475569;
+  background-color: var(--bg-dark);
+  color: var(--text-main);
+}
+
+body.light-theme .screen-overlay {
+  background: rgba(234, 240, 248, 0.85);
+}
+
+body.light-theme .glass-card {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(240, 244, 252, 0.95));
+  border: 1px solid rgba(2, 132, 199, 0.35);
+  box-shadow: 0 10px 40px rgba(15, 23, 42, 0.12), 0 0 25px rgba(2, 132, 199, 0.15);
+}
+
+body.light-theme .glitch-title {
+  color: #0f172a;
+  text-shadow: 0 0 20px rgba(2, 132, 199, 0.4), 0 0 35px rgba(192, 38, 212, 0.3);
+}
+
+body.light-theme .game-badge {
+  background: rgba(2, 132, 199, 0.1);
+  border-color: rgba(2, 132, 199, 0.3);
+}
+
+body.light-theme .subtitle {
+  color: var(--text-muted);
+}
+
+body.light-theme .hud-box {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+body.light-theme .hud-val {
+  text-shadow: 0 0 8px rgba(2, 132, 199, 0.3);
+}
+
+body.light-theme .controls-hint {
+  background: rgba(255, 255, 255, 0.7);
+  color: var(--text-muted);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+body.light-theme .btn-secondary {
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  color: var(--text-main);
+}
+
+body.light-theme .btn-secondary:hover {
+  background: rgba(2, 132, 199, 0.12);
+  border-color: var(--primary-cyan);
+}
+
+body.light-theme .btn-primary {
+  color: #ffffff;
+}
+
+body.light-theme .life-btn {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.12);
+  color: var(--text-muted);
+}
+
+body.light-theme .life-btn:hover {
+  background: rgba(2, 132, 199, 0.1);
+  border-color: var(--primary-cyan);
+  color: var(--text-main);
+}
+
+body.light-theme .life-btn.active {
+  background: linear-gradient(135deg, rgba(2, 132, 199, 0.2), rgba(192, 38, 212, 0.2));
+  border-color: var(--primary-cyan);
+  color: var(--text-main);
+  box-shadow: 0 0 12px rgba(2, 132, 199, 0.25);
+}
+
+body.light-theme .shop-header {
+  border-bottom-color: rgba(0, 0, 0, 0.1);
+}
+
+body.light-theme .close-btn {
+  color: var(--text-muted);
+}
+
+body.light-theme .close-btn:hover {
+  color: var(--text-main);
+}
+
+body.light-theme .shop-tab {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.12);
+  color: var(--text-muted);
+}
+
+body.light-theme .shop-tab.active, body.light-theme .shop-tab:hover {
+  background: rgba(2, 132, 199, 0.15);
+  border-color: var(--primary-cyan);
+  color: var(--text-main);
+}
+
+body.light-theme .upgrade-card, body.light-theme .skin-card {
+  background: rgba(255, 255, 255, 0.7);
+  border-color: rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+}
+
+body.light-theme .upg-icon {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+body.light-theme .upg-level-bar .bar {
+  background: rgba(0, 0, 0, 0.12);
+}
+
+body.light-theme .upg-level-bar .bar.fill {
+  background: var(--primary-cyan);
+  box-shadow: 0 0 6px var(--primary-cyan);
+}
+
+body.light-theme .powerup-pill {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: var(--primary-cyan);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+body.light-theme .powerup-timer-bar {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+body.light-theme .touch-zone {
+  background: var(--panel-bg);
+  box-shadow: 0 0 15px rgba(2, 132, 199, 0.25);
+}
+
+body.light-theme .stats-summary {
+  background: rgba(0, 0, 0, 0.05);
+}
+
