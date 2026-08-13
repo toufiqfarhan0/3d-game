@@ -75,36 +75,6 @@ Players can configure their desired difficulty on the Start Screen before runnin
 
 ---
 
-## 🔊 Meme Sound Effects System & Web Audio API Engine
-
-AO RUN features a dual-layer audio architecture: an **Interactive Meme Sound Effects System** and a **Web Audio API Procedural Synthesizer**.
-
-### 10 Iconic Meme Sound Effects
-1. 🏃 **"RUN" Vine Meme**: High-energy panic cue.
-2. 💔 **"They ask you how you are..."**: Melancholic meme reaction.
-3. 💻 **Windows XP Error**: Nostalgic error chime.
-4. 🎬 **Directed by Robert B. Weide**: Classic end-credits comedy anthem.
-5. 🗿 **"Bruh" Sound**: Deep bass impact meme.
-6. 😱 **"Are Baap Re"**: Viral Indian meme expression.
-7. 🥊 **Classic Punch SFX**: Arcade impact hit.
-8. ❓ **"Aayein" / "Huh?"**: Confused meme audio.
-9. 💨 **"Faaah"**: High-pitch reaction sound.
-10. 🚗 **"Deja Vu"**: Eurobeat drift sound byte.
-
-### Web Audio API Fallback Synthesizer
-To guarantee **100% offline compatibility** and **zero-latency audio**, the game includes a built-in Web Audio API synthesizer generating real-time sound effects:
-- **Orb Pickup**: Dual-frequency sine wave sweep ($987\text{ Hz} \to 1318\text{ Hz}$).
-- **Jump SFX**: Square wave frequency ramp ($150\text{ Hz} \to 450\text{ Hz}$).
-- **Slide SFX**: Triangle wave frequency drop ($300\text{ Hz} \to 100\text{ Hz}$).
-- **Powerup Arpeggio**: 4-note ascending chord progression (C5 $\to$ E5 $\to$ G5 $\to$ C6).
-- **Hit / Crash**: Heavy sawtooth wave frequency drop with exponential gain decay.
-- **Synthwave Bass Loop**: 136 BPM pulse loop playing A2 synth bass pattern.
-
-### Interactive Meme Soundboard & Volume Slider
-Access the interactive Meme Soundboard modal from the UI menu to audit sound effects, test individual meme audio cues, and adjust the master volume slider.
-
----
-
 ## 🌗 Visuals & Dynamic Dual Themes
 
 ### Lighting & Post-Processing
@@ -216,5 +186,5 @@ This project is open-source and available under the [MIT License](LICENSE).
 ---
 
 <p center="align">
-  Crafted with ❤️ for high-octane 3D gaming enthusiasts!
+  Crafted with AO
 </p>
