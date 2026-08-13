@@ -177,24 +177,13 @@ export class UIManager {
 
   public updateLives(currentLives: number, maxLives: number) {
     if (!this.hudLivesContainer) return;
-    const children = this.hudLivesContainer.children;
-    if (children.length !== maxLives) {
-      this.hudLivesContainer.innerHTML = '';
-      for (let i = 0; i < maxLives; i++) {
-        const heart = document.createElement('span');
-        const isAlive = i < currentLives;
-        heart.className = `heart-icon ${isAlive ? 'active' : 'lost'}`;
-        heart.textContent = '❤️';
-        this.hudLivesContainer.appendChild(heart);
-      }
-    } else {
-      for (let i = 0; i < maxLives; i++) {
-        const isAlive = i < currentLives;
-        const targetClass = `heart-icon ${isAlive ? 'active' : 'lost'}`;
-        if (children[i].className !== targetClass) {
-          children[i].className = targetClass;
-        }
-      }
+    this.hudLivesContainer.innerHTML = '';
+    for (let i = 0; i < maxLives; i++) {
+      const heart = document.createElement('span');
+      const isAlive = i < currentLives;
+      heart.className = `heart-icon ${isAlive ? 'active' : 'lost'}`;
+      heart.textContent = '❤️';
+      this.hudLivesContainer.appendChild(heart);
     }
   }
 
@@ -202,10 +191,8 @@ export class UIManager {
     if (!this.damageFlash) return;
     this.damageFlash.classList.add('flash-active');
     setTimeout(() => {
-      if (this.damageFlash) {
-        this.damageFlash.classList.remove('flash-active');
-      }
-    }, 120);
+      this.damageFlash.classList.remove('flash-active');
+    }, 150);
   }
 
   public showGameOverModal(isNewHighScore: boolean, hitsTaken: number = 3) {

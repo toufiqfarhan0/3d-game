@@ -93,8 +93,6 @@ html, body {
   background:
     radial-gradient(ellipse 70% 60% at 50% 50%, transparent 40%, rgba(255, 30, 30, 0.72) 100%);
   opacity: 0;
-  will-change: opacity;
-  transform: translateZ(0);
   transition: opacity 0.08s ease-out;
 }
 

@@ -353,15 +353,14 @@ export class Player {
   }
 
   public update(dt: number) {
-    // 1. Smooth Lane Horizontal movement with exponential damping
-    const laneAlpha = 1 - Math.exp(-22 * dt);
-    this.currentX = lerp(this.currentX, this.targetX, laneAlpha);
+    // 1. Smooth Lane Horizontal lerp
+    this.currentX = lerp(this.currentX, this.targetX, dt * 18);
     this.mesh.position.x = this.currentX;
 
     // Realistic lean / banking angle in turns
-    const rollAngle = (this.currentX - this.targetX) * 0.16;
+    const rollAngle = (this.currentX - this.targetX) * 0.18;
     this.bodyRoot.rotation.z = rollAngle;
-    this.bodyRoot.rotation.y = -rollAngle * 0.35;
+    this.bodyRoot.rotation.y = -rollAngle * 0.4;
 
     // 2. Vertical Jump Physics
     if (!this.isGrounded) {
@@ -477,21 +476,5 @@ export class Player {
     this.invincibilityTimer = 0;
     this.mesh.visible = true;
     this.mesh.position.set(this.currentX, 0, 0);
-
-    if (this.bodyRoot) {
-      this.bodyRoot.rotation.set(0, 0, 0);
-      this.bodyRoot.position.set(0, 0, 0);
-      this.bodyRoot.scale.set(1, 1, 1);
-    }
-    if (this.torsoGroup) {
-      this.torsoGroup.rotation.set(0, 0, 0);
-    }
-    if (this.leftArmGroup) this.leftArmGroup.rotation.set(0, 0, 0);
-    if (this.rightArmGroup) this.rightArmGroup.rotation.set(0, 0, 0);
-    if (this.leftLegGroup) this.leftLegGroup.rotation.set(0, 0, 0);
-    if (this.rightLegGroup) this.rightLegGroup.rotation.set(0, 0, 0);
-    if (this.leftShinGroup) this.leftShinGroup.rotation.set(0, 0, 0);
-    if (this.rightShinGroup) this.rightShinGroup.rotation.set(0, 0, 0);
-    this.updateBoundingBox();
   }
 }

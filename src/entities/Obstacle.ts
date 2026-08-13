@@ -1,18 +1,20 @@
 import * as THREE from 'three';
 import { SharedAssets } from '../utils/SharedAssets';
 
-export type ObstacleType = 'LOW_BARRIER' | 'HIGH_GATE' | 'FULL_BLOCK';
+export type ObstacleType = 'LOW_BARRIER' | 'HIGH_GATE' | 'FULL_BLOCK' | 'MOVING_DRONE';
 
 const BOX_SIZES: Record<ObstacleType, THREE.Vector3> = {
   LOW_BARRIER: new THREE.Vector3(2.6, 1.0, 1.2),
   HIGH_GATE: new THREE.Vector3(2.8, 1.8, 1.2),
-  FULL_BLOCK: new THREE.Vector3(2.4, 2.5, 1.6)
+  FULL_BLOCK: new THREE.Vector3(2.4, 2.5, 1.6),
+  MOVING_DRONE: new THREE.Vector3(1.8, 1.6, 1.8)
 };
 
 const BOX_OFFSETS: Record<ObstacleType, number> = {
   LOW_BARRIER: 0.5,
   HIGH_GATE: 2.0,
-  FULL_BLOCK: 1.25
+  FULL_BLOCK: 1.25,
+  MOVING_DRONE: 1.4
 };
 
 const _tempCenter = new THREE.Vector3();
@@ -24,7 +26,12 @@ export class Obstacle {
   public laneIndex: number = 1;
   public active: boolean = false;
 
+  private moveSpeed: number = 0;
+  private moveDir: number = 1;
+  private initialX: number = 0;
+
   // Animation nodes
+  private rotatingParts: THREE.Object3D[] = [];
   private beaconLights: THREE.Mesh[] = [];
 
   constructor(type: ObstacleType) {
@@ -135,12 +142,49 @@ export class Obstacle {
         this.mesh.add(container, topBar);
         break;
       }
+
+      case 'MOVING_DRONE': {
+        const body = new THREE.Mesh(assets.droneBodyGeo, assets.droneBodyMat);
+        body.position.y = 1.4;
+        body.castShadow = true;
+
+        const pod = new THREE.Mesh(assets.dronePodGeo, assets.dronePodMat);
+        pod.position.set(0, 1.2, 0.35);
+
+        const angles = [Math.PI / 4, 3 * Math.PI / 4, 5 * Math.PI / 4, 7 * Math.PI / 4];
+        angles.forEach(ang => {
+          const arm = new THREE.Mesh(assets.droneArmGeo, assets.obsSteelMat);
+          arm.rotation.z = Math.PI / 2;
+          arm.rotation.y = ang;
+          arm.position.set(Math.cos(ang) * 0.45, 1.4, Math.sin(ang) * 0.45);
+          this.mesh.add(arm);
+
+          const motor = new THREE.Mesh(assets.droneMotorGeo, assets.obsSteelMat);
+          motor.position.set(Math.cos(ang) * 0.9, 1.45, Math.sin(ang) * 0.9);
+          this.mesh.add(motor);
+
+          const prop = new THREE.Mesh(assets.dronePropGeo, assets.dronePropMat);
+          prop.position.set(Math.cos(ang) * 0.9, 1.55, Math.sin(ang) * 0.9);
+          this.mesh.add(prop);
+          this.rotatingParts.push(prop);
+        });
+
+        const lightBeam = new THREE.Mesh(assets.droneLightBeamGeo, assets.droneLightBeamMat);
+        lightBeam.position.set(0, 0.7, 0);
+        this.mesh.add(lightBeam);
+
+        this.mesh.add(body, pod);
+        this.moveSpeed = 3.8;
+        break;
+      }
     }
   }
 
   public spawn(laneIndex: number, posX: number, posZ: number) {
     this.laneIndex = laneIndex;
     this.mesh.position.set(posX, 0, posZ);
+    this.initialX = posX;
+    this.moveDir = Math.random() < 0.5 ? 1 : -1;
     this.active = true;
     this.mesh.visible = true;
     this.updateBoundingBox();
@@ -155,15 +199,29 @@ export class Obstacle {
   public update(dt: number) {
     if (!this.active) return;
 
+    if (this.type === 'MOVING_DRONE') {
+      this.mesh.position.x += this.moveSpeed * this.moveDir * dt;
+      if (Math.abs(this.mesh.position.x - this.initialX) > 2.4) {
+        this.moveDir *= -1;
+      }
+
+      // Rotate drone propellers
+      const rotDelta = dt * 35;
+      for (let i = 0; i < this.rotatingParts.length; i++) {
+        this.rotatingParts[i].rotation.y += rotDelta;
+      }
+
+      // Subtle hover bobbing
+      this.mesh.position.y = Math.sin(performance.now() * 0.005) * 0.12;
+    }
+
     // Blink construction beacon lights
     if (this.beaconLights.length > 0) {
       const assets = SharedAssets.getInstance();
       const isBeaconOn = Math.floor(performance.now() * 0.004) % 2 === 0;
       const targetMat = isBeaconOn ? assets.amberBeaconOnMat : assets.amberBeaconOffMat;
-      if (this.beaconLights[0].material !== targetMat) {
-        for (let i = 0; i < this.beaconLights.length; i++) {
-          this.beaconLights[i].material = targetMat;
-        }
+      for (let i = 0; i < this.beaconLights.length; i++) {
+        this.beaconLights[i].material = targetMat;
       }
     }
 

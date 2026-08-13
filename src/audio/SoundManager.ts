@@ -20,12 +20,6 @@ export class SoundManager {
     return SoundManager.instance;
   }
 
-  public prewarm() {
-    try {
-      this.initCtx();
-    } catch (e) {}
-  }
-
   private initCtx(): AudioContext {
     if (!this.ctx) {
       const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;

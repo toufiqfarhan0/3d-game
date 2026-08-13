@@ -10,6 +10,7 @@ interface ParticleNode {
   r: number;
   g: number;
   b: number;
+  size: number;
   life: number;
   maxLife: number;
   active: boolean;
@@ -24,7 +25,6 @@ export class ParticleManager {
   private maxParticles: number = 800;
   private pool: ParticleNode[] = [];
   private poolIndex: number = 0;
-  private activeCount: number = 0;
   private positions: Float32Array;
   private colors: Float32Array;
 
@@ -45,6 +45,7 @@ export class ParticleManager {
         r: 1,
         g: 1,
         b: 1,
+        size: 0,
         life: 0,
         maxLife: 1,
         active: false,
@@ -74,14 +75,11 @@ export class ParticleManager {
   }
 
   // Fast O(1) ring buffer particle allocator
-  private getNextParticle(idx: { val: number }): ParticleNode {
-    idx.val = this.poolIndex;
+  private getNextParticle(): ParticleNode {
     const p = this.pool[this.poolIndex];
     this.poolIndex = (this.poolIndex + 1) % this.maxParticles;
     return p;
   }
-
-  private _idxObj = { val: 0 };
 
   public spawnBurst(pos: THREE.Vector3, colorHex: number, count: number = 24) {
     const r = ((colorHex >> 16) & 255) / 255;
@@ -89,13 +87,7 @@ export class ParticleManager {
     const b = (colorHex & 255) / 255;
 
     for (let i = 0; i < count; i++) {
-      const p = this.getNextParticle(this._idxObj);
-      const pIdx = this._idxObj.val;
-
-      if (!p.active) {
-        this.activeCount++;
-      }
-
+      const p = this.getNextParticle();
       p.x = pos.x;
       p.y = pos.y;
       p.z = pos.z;
@@ -108,60 +100,30 @@ export class ParticleManager {
       p.life = 0;
       p.maxLife = Math.random() * 0.4 + 0.3;
       p.active = true;
-
-      this.positions[pIdx * 3] = p.x;
-      this.positions[pIdx * 3 + 1] = p.y;
-      this.positions[pIdx * 3 + 2] = p.z;
-
-      this.colors[pIdx * 3] = r;
-      this.colors[pIdx * 3 + 1] = g;
-      this.colors[pIdx * 3 + 2] = b;
     }
-
-    this.particleGeo.attributes.position.needsUpdate = true;
-    this.particleGeo.attributes.color.needsUpdate = true;
   }
 
   public spawnSlideSparks(playerPos: THREE.Vector3) {
     for (let i = 0; i < 3; i++) {
-      const p = this.getNextParticle(this._idxObj);
-      const pIdx = this._idxObj.val;
-
-      if (!p.active) this.activeCount++;
-
+      const p = this.getNextParticle();
       p.x = playerPos.x + (Math.random() - 0.5) * 0.4;
       p.y = 0.05;
       p.z = playerPos.z - 0.2;
       p.vx = (Math.random() - 0.5) * 4;
       p.vy = Math.random() * 2 + 0.5;
       p.vz = -Math.random() * 8 - 4;
-      p.r = 0.96;
+      p.r = 0.96; // 0xf59e0b
       p.g = 0.62;
       p.b = 0.04;
       p.life = 0;
       p.maxLife = 0.22;
       p.active = true;
-
-      this.positions[pIdx * 3] = p.x;
-      this.positions[pIdx * 3 + 1] = p.y;
-      this.positions[pIdx * 3 + 2] = p.z;
-
-      this.colors[pIdx * 3] = p.r;
-      this.colors[pIdx * 3 + 1] = p.g;
-      this.colors[pIdx * 3 + 2] = p.b;
     }
-
-    this.particleGeo.attributes.position.needsUpdate = true;
-    this.particleGeo.attributes.color.needsUpdate = true;
   }
 
   public spawnThrusterSparks(playerPos: THREE.Vector3, colorHex: number = 0x38bdf8) {
     if (Math.random() < 0.6) {
-      const p = this.getNextParticle(this._idxObj);
-      const pIdx = this._idxObj.val;
-
-      if (!p.active) this.activeCount++;
-
+      const p = this.getNextParticle();
       p.x = playerPos.x + (Math.random() - 0.5) * 0.2;
       p.y = playerPos.y + 0.7;
       p.z = playerPos.z - 0.35;
@@ -174,56 +136,28 @@ export class ParticleManager {
       p.life = 0;
       p.maxLife = 0.18;
       p.active = true;
-
-      this.positions[pIdx * 3] = p.x;
-      this.positions[pIdx * 3 + 1] = p.y;
-      this.positions[pIdx * 3 + 2] = p.z;
-
-      this.colors[pIdx * 3] = p.r;
-      this.colors[pIdx * 3 + 1] = p.g;
-      this.colors[pIdx * 3 + 2] = p.b;
-
-      this.particleGeo.attributes.position.needsUpdate = true;
-      this.particleGeo.attributes.color.needsUpdate = true;
     }
   }
 
   public spawnSpeedLines(cameraPos: THREE.Vector3) {
     if (Math.random() < 0.35) {
-      const p = this.getNextParticle(this._idxObj);
-      const pIdx = this._idxObj.val;
-
-      if (!p.active) this.activeCount++;
-
+      const p = this.getNextParticle();
       p.x = cameraPos.x + (Math.random() - 0.5) * 18;
       p.y = cameraPos.y + (Math.random() - 0.5) * 12;
       p.z = cameraPos.z + 25 + Math.random() * 15;
       p.vx = 0;
       p.vy = 0;
       p.vz = -45;
-      p.r = 0.22;
+      p.r = 0.22; // 0x38bdf8
       p.g = 0.74;
       p.b = 0.97;
       p.life = 0;
       p.maxLife = 0.5;
       p.active = true;
-
-      this.positions[pIdx * 3] = p.x;
-      this.positions[pIdx * 3 + 1] = p.y;
-      this.positions[pIdx * 3 + 2] = p.z;
-
-      this.colors[pIdx * 3] = p.r;
-      this.colors[pIdx * 3 + 1] = p.g;
-      this.colors[pIdx * 3 + 2] = p.b;
-
-      this.particleGeo.attributes.position.needsUpdate = true;
-      this.particleGeo.attributes.color.needsUpdate = true;
     }
   }
 
   public update(dt: number) {
-    if (this.activeCount === 0) return;
-
     let hasUpdates = false;
 
     for (let i = 0; i < this.maxParticles; i++) {
@@ -235,7 +169,6 @@ export class ParticleManager {
         p.active = false;
         p.y = -1000;
         this.positions[i * 3 + 1] = -1000;
-        this.activeCount = Math.max(0, this.activeCount - 1);
         hasUpdates = true;
         continue;
       }
@@ -251,21 +184,16 @@ export class ParticleManager {
       this.positions[i * 3 + 1] = p.y;
       this.positions[i * 3 + 2] = p.z;
 
+      this.colors[i * 3] = p.r;
+      this.colors[i * 3 + 1] = p.g;
+      this.colors[i * 3 + 2] = p.b;
+
       hasUpdates = true;
     }
 
     if (hasUpdates) {
       this.particleGeo.attributes.position.needsUpdate = true;
+      this.particleGeo.attributes.color.needsUpdate = true;
     }
-  }
-
-  public clear() {
-    for (let i = 0; i < this.maxParticles; i++) {
-      this.pool[i].active = false;
-      this.positions[i * 3 + 1] = -1000;
-    }
-    this.activeCount = 0;
-    this.poolIndex = 0;
-    this.particleGeo.attributes.position.needsUpdate = true;
   }
 }

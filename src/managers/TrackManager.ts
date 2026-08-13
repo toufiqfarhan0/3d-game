@@ -97,7 +97,7 @@ export class TrackManager {
     const blockedLanes = availableLanes.filter(l => l !== openLane);
 
     // Pick obstacle types
-    const types: ObstacleType[] = ['LOW_BARRIER', 'HIGH_GATE', 'FULL_BLOCK'];
+    const types: ObstacleType[] = ['LOW_BARRIER', 'HIGH_GATE', 'FULL_BLOCK', 'MOVING_DRONE'];
     
     for (let i = 0; i < blockedLanes.length; i++) {
       const laneIdx = blockedLanes[i];
