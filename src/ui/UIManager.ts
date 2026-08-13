@@ -89,10 +89,8 @@ export class UIManager {
     }
 
     // Update Pause screen theme button
-    const themeIconPause = document.getElementById('theme-icon-pause');
     const themeLabelPause = document.getElementById('theme-label-pause');
-    if (themeIconPause && themeLabelPause) {
-      themeIconPause.textContent = isLight ? '🌙' : '☀️';
+    if (themeLabelPause) {
       themeLabelPause.textContent = `THEME: ${isLight ? 'LIGHT' : 'DARK'}`;
     }
 
@@ -122,10 +120,8 @@ export class UIManager {
 
     // Pause menu sound button
     const soundLabelPause = document.getElementById('sound-label-pause');
-    const soundIconPause = document.getElementById('sound-icon-pause');
-    if (soundLabelPause && soundIconPause) {
+    if (soundLabelPause) {
       soundLabelPause.textContent = `SOUND: ${isMuted ? 'OFF' : 'ON'}`;
-      soundIconPause.textContent = isMuted ? '🔇' : '🔊';
     }
   }
 
