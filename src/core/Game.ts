@@ -8,7 +8,7 @@ import { SoundManager } from '../audio/SoundManager';
 import { CameraManager } from './CameraManager';
 import { InputManager } from './InputManager';
 import { UIManager } from '../ui/UIManager';
-import { checkAABBCollision, TRACK_SPEED_BASE, TRACK_SPEED_MAX } from '../utils/MathUtils';
+import { checkAABBCollision, checkSweptAABBCollision, TRACK_SPEED_BASE, TRACK_SPEED_MAX } from '../utils/MathUtils';
 
 export type GameState = 'START' | 'PLAYING' | 'PAUSED' | 'GAMEOVER';
 
@@ -251,8 +251,10 @@ export class Game {
     this.currentSpeed = Math.min(TRACK_SPEED_MAX, TRACK_SPEED_BASE + (this.player.mesh.position.z / 150));
 
     // 2. Move player along track Z axis
+    const prevPlayerZ = this.player.mesh.position.z;
     this.player.mesh.position.z += this.currentSpeed * dt;
     this.player.update(dt);
+    const currPlayerZ = this.player.mesh.position.z;
 
     // Track directional shadow light to follow player
     if ((this as any).dirLight) {
@@ -272,7 +274,7 @@ export class Game {
 
     // 5. Collision Checks: Player vs Obstacles
     this.trackMgr.obstacles.forEach(obs => {
-      if (obs.active && checkAABBCollision(this.player.boundingBox, obs.boundingBox)) {
+      if (obs.active && checkSweptAABBCollision(this.player.boundingBox, obs.boundingBox, prevPlayerZ, currPlayerZ)) {
         // Skip collision if player is currently invincible (i-frame)
         if (this.player.isInvincible) return;
 

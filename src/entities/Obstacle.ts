@@ -4,16 +4,16 @@ export type ObstacleType = 'LOW_BARRIER' | 'HIGH_GATE' | 'FULL_BLOCK' | 'MOVING_
 
 // Pre-allocated static vectors for bounding box calculation to prevent per-frame GC allocations
 const BOX_SIZES: Record<ObstacleType, THREE.Vector3> = {
-  LOW_BARRIER: new THREE.Vector3(2.4, 0.7, 0.4),
-  HIGH_GATE: new THREE.Vector3(2.6, 0.8, 0.4),
-  FULL_BLOCK: new THREE.Vector3(2.2, 2.4, 1.2),
+  LOW_BARRIER: new THREE.Vector3(2.4, 0.9, 1.2),
+  HIGH_GATE: new THREE.Vector3(2.6, 1.6, 1.2),
+  FULL_BLOCK: new THREE.Vector3(2.2, 2.4, 1.4),
   MOVING_DRONE: new THREE.Vector3(1.8, 1.6, 1.8),
-  LASER_BARRIER: new THREE.Vector3(5.6, 0.3, 0.3)
+  LASER_BARRIER: new THREE.Vector3(5.6, 0.8, 1.2)
 };
 
 const BOX_OFFSETS: Record<ObstacleType, number> = {
-  LOW_BARRIER: 0.35,
-  HIGH_GATE: 2.2,
+  LOW_BARRIER: 0.45,
+  HIGH_GATE: 1.8,
   FULL_BLOCK: 1.2,
   MOVING_DRONE: 1.3,
   LASER_BARRIER: 1.2
@@ -232,8 +232,8 @@ export class Obstacle {
       }
     }
 
-    // Shadow casting for main obstacle mesh blocks
-    if (this.type === 'FULL_BLOCK') {
+    // Shadow casting for obstacle meshes
+    if (this.type === 'FULL_BLOCK' || this.type === 'LOW_BARRIER') {
       this.mesh.traverse((child) => {
         if (child instanceof THREE.Mesh) {
           child.castShadow = true;
