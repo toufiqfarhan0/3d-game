@@ -71,14 +71,16 @@ export class Player {
 
     const primaryMat = new THREE.MeshStandardMaterial({
       color: this.primaryColor,
+      emissive: this.primaryColor,
+      emissiveIntensity: 0.6,
       roughness: 0.2,
       metalness: 0.8
     });
 
     const darkArmorMat = new THREE.MeshStandardMaterial({
       color: 0x111625,
-      roughness: 0.4,
-      metalness: 0.6
+      roughness: 0.3,
+      metalness: 0.7
     });
 
     const glowMat = new THREE.MeshBasicMaterial({
@@ -113,9 +115,22 @@ export class Player {
     jetpack.position.set(0, 0, -0.4);
     this.torsoMesh.add(jetpack);
 
-    this.thrusterGlow = new THREE.PointLight(this.glowColor, 2, 6);
+    this.thrusterGlow = new THREE.PointLight(this.glowColor, 3, 7);
     this.thrusterGlow.position.set(0, -0.3, -0.6);
     this.torsoMesh.add(this.thrusterGlow);
+
+    // Ground Neon Underglow Light
+    const underglowLight = new THREE.PointLight(this.glowColor, 2.5, 5);
+    underglowLight.position.set(0, 0.2, 0);
+    this.mesh.add(underglowLight);
+
+    // Neon Footprint Ring
+    const ringGeo = new THREE.RingGeometry(0.6, 0.75, 24);
+    const ringMat = new THREE.MeshBasicMaterial({ color: this.glowColor, side: THREE.DoubleSide });
+    const underglowRing = new THREE.Mesh(ringGeo, ringMat);
+    underglowRing.rotation.x = -Math.PI / 2;
+    underglowRing.position.y = 0.02;
+    this.mesh.add(underglowRing);
 
     // 3. Legs
     const legGeo = new THREE.BoxGeometry(0.3, 0.8, 0.3);

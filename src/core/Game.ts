@@ -47,7 +47,8 @@ export class Game {
   private initThreeJS() {
     this.scene = new THREE.Scene();
     this.scene.background = new THREE.Color(0x050713);
-    this.scene.fog = new THREE.FogExp2(0x050713, 0.012);
+    // Reduced fog density so obstacles are clearly visible from further away
+    this.scene.fog = new THREE.FogExp2(0x050713, 0.006);
 
     this.renderer = new THREE.WebGLRenderer({
       canvas: this.canvas,
@@ -59,11 +60,18 @@ export class Game {
     this.renderer.shadowMap.enabled = true;
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
-    // Lighting
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+    // ACES Filmic Tone Mapping for vibrant neon glow pop
+    this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    this.renderer.toneMappingExposure = 1.25;
+
+    // Ambient Lighting & Hemisphere Cyan/Magenta Sci-Fi Fill Light
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.85);
     this.scene.add(ambientLight);
 
-    const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
+    const hemiLight = new THREE.HemisphereLight(0x00f0ff, 0xaa00ff, 0.6);
+    this.scene.add(hemiLight);
+
+    const dirLight = new THREE.DirectionalLight(0xffffff, 1.4);
     dirLight.position.set(20, 40, 20);
     dirLight.castShadow = true;
     dirLight.shadow.mapSize.width = 2048;
