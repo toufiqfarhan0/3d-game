@@ -42,8 +42,6 @@ export class Player {
 
   // Active Powerups State
   public shieldActive: boolean = false;
-  public magnetActive: boolean = false;
-  public magnetRadius: number = 15;
 
   // Lives & Invincibility State
   public lives: number = 3;
@@ -318,7 +316,6 @@ export class Player {
     this.isGrounded = true;
     this.isSliding = false;
     this.shieldActive = false;
-    this.magnetActive = false;
     this.isInvincible = false;
     this.invincibilityTimer = 0;
     this.mesh.visible = true;

@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-export type CollectibleType = 'ORB' | 'MAGNET' | 'SHIELD' | 'MULTIPLIER';
+export type CollectibleType = 'ORB' | 'SHIELD' | 'MULTIPLIER';
 
 const BOX_SIZE = new THREE.Vector3(0.9, 0.9, 0.9);
 
@@ -41,35 +41,6 @@ export class Collectible {
         halo.rotation.x = Math.PI / 3;
 
         this.mesh.add(orb, halo);
-        break;
-      }
-
-      case 'MAGNET': {
-        // Horseshoe Magnet: Hot Neon Crimson Body + Electric Neon Cyan Tips
-        const torusGeo = new THREE.TorusGeometry(0.38, 0.12, 8, 16, Math.PI);
-        const mat = new THREE.MeshStandardMaterial({
-          color: 0xff0055,
-          emissive: 0xdd0044,
-          emissiveIntensity: 1.5,
-          metalness: 0.9,
-          roughness: 0.1
-        });
-        const magnet = new THREE.Mesh(torusGeo, mat);
-        magnet.rotation.z = Math.PI;
-
-        const tipGeo = new THREE.BoxGeometry(0.22, 0.22, 0.22);
-        const tipMat = new THREE.MeshStandardMaterial({
-          color: 0x00ffff,
-          emissive: 0x00ffff,
-          emissiveIntensity: 1.8,
-          metalness: 0.9
-        });
-        const t1 = new THREE.Mesh(tipGeo, tipMat);
-        t1.position.set(-0.38, 0.1, 0);
-        const t2 = new THREE.Mesh(tipGeo, tipMat);
-        t2.position.set(0.38, 0.1, 0);
-
-        this.mesh.add(magnet, t1, t2);
         break;
       }
 

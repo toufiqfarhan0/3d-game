@@ -254,8 +254,8 @@ export class UIManager {
     } else {
       this.scoreMgr.activePowerups.forEach((pu) => {
         let pill = this.hudPowerups.querySelector(`[data-type="${pu.type}"]`) as HTMLElement;
-        const icons = { MAGNET: '🧲', SHIELD: '🛡️', MULTIPLIER: '⚡' };
-        const titles = { MAGNET: 'MAGNET ACTIVE', SHIELD: 'SHIELD ACTIVE', MULTIPLIER: '2X SCORE' };
+        const icons = { SHIELD: '🛡️', MULTIPLIER: '⚡' };
+        const titles = { SHIELD: 'SHIELD ACTIVE', MULTIPLIER: '2X SCORE' };
         const pct = Math.max(0, Math.min(100, (pu.duration / pu.maxDuration) * 100));
 
         if (!pill) {
@@ -309,7 +309,7 @@ export class UIManager {
     this.shopCoins.textContent = String(this.scoreMgr.totalCoinsOwned);
 
     // Update upgrade buttons state & bars
-    const updateCard = (type: 'magnet' | 'shield' | 'multiplier') => {
+    const updateCard = (type: 'shield' | 'multiplier') => {
       const upg = this.shopMgr.upgrades[type];
       const barContainer = document.getElementById(`lvl-bar-${type}`);
       const btn = document.getElementById(`btn-upg-${type}`) as HTMLButtonElement;
@@ -335,7 +335,6 @@ export class UIManager {
       }
     };
 
-    updateCard('magnet');
     updateCard('shield');
     updateCard('multiplier');
 

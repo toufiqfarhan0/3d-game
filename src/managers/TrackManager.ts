@@ -91,7 +91,7 @@ export class TrackManager {
 
     // 15% Chance for a rare Power-up
     if (Math.random() < 0.15) {
-      const pTypes: CollectibleType[] = ['MAGNET', 'SHIELD', 'MULTIPLIER'];
+      const pTypes: CollectibleType[] = ['SHIELD', 'MULTIPLIER'];
       const pType = randomChoice(pTypes);
       const pOrb = new Collectible(pType, orbLaneX, 1.2, posZ + 8);
       this.collectibles.push(pOrb);
