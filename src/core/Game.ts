@@ -428,12 +428,7 @@ export class Game {
       }
     }
 
-    // 6. Particle Effects & Thruster Propulsion
-    this.particleMgr.spawnThrusterSparks(this.player.mesh.position, this.player.glowColor);
-    if (this.player.isSliding) {
-      this.particleMgr.spawnSlideSparks(this.player.mesh.position);
-    }
-    this.particleMgr.spawnSpeedLines(this.cameraMgr.camera.position);
+    // 6. Particle Effects Update (Bursts on ore pickup & collisions)
     this.particleMgr.update(dt);
 
     // 7. Camera Tracking & FOV Update
