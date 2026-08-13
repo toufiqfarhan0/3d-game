@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-export const LANE_X_POSITIONS = [-3.2, 0.0, 3.2];
+export const LANE_X_POSITIONS = [3.2, 0.0, -3.2];
 export const TRACK_SPEED_BASE = 28; // initial running speed (units/sec)
 export const TRACK_SPEED_MAX = 55;  // max speed cap
 
