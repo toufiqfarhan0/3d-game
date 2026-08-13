@@ -1,0 +1,236 @@
+import { ScoreManager } from '../managers/ScoreManager';
+import { ShopManager } from '../managers/ShopManager';
+import { SoundManager } from '../audio/SoundManager';
+import { Player } from '../entities/Player';
+
+export class UIManager {
+  private scoreMgr: ScoreManager;
+  private shopMgr: ShopManager;
+  private soundMgr: SoundManager;
+
+  // DOM Elements
+  private hudOverlay: HTMLElement;
+  private hudScore: HTMLElement;
+  private hudMultiplier: HTMLElement;
+  private hudDistance: HTMLElement;
+  private hudCoins: HTMLElement;
+  private hudPowerups: HTMLElement;
+  private levelBadge: HTMLElement;
+
+  private startScreen: HTMLElement;
+  private shopModal: HTMLElement;
+  private pauseModal: HTMLElement;
+  private gameoverModal: HTMLElement;
+  private newRecordTag: HTMLElement;
+
+  private startHighScore: HTMLElement;
+  private shopCoins: HTMLElement;
+  private goScore: HTMLElement;
+  private goDist: HTMLElement;
+  private goCoins: HTMLElement;
+  private goBest: HTMLElement;
+
+  constructor(scoreMgr: ScoreManager, shopMgr: ShopManager, soundMgr: SoundManager) {
+    this.scoreMgr = scoreMgr;
+    this.shopMgr = shopMgr;
+    this.soundMgr = soundMgr;
+
+    this.hudOverlay = document.getElementById('hud-overlay')!;
+    this.hudScore = document.getElementById('hud-score-val')!;
+    this.hudMultiplier = document.getElementById('hud-multiplier')!;
+    this.hudDistance = document.getElementById('hud-dist-val')!;
+    this.hudCoins = document.getElementById('hud-coins-val')!;
+    this.hudPowerups = document.getElementById('hud-powerups')!;
+    this.levelBadge = document.getElementById('level-badge')!;
+
+    this.startScreen = document.getElementById('start-screen')!;
+    this.shopModal = document.getElementById('shop-modal')!;
+    this.pauseModal = document.getElementById('pause-modal')!;
+    this.gameoverModal = document.getElementById('gameover-modal')!;
+    this.newRecordTag = document.getElementById('new-highscore-tag')!;
+
+    this.startHighScore = document.getElementById('start-high-score')!;
+    this.shopCoins = document.getElementById('shop-coin-count')!;
+    this.goScore = document.getElementById('go-score')!;
+    this.goDist = document.getElementById('go-dist')!;
+    this.goCoins = document.getElementById('go-coins')!;
+    this.goBest = document.getElementById('go-best')!;
+
+    this.initShopTabs();
+    this.updateStartScreen();
+  }
+
+  public updateStartScreen() {
+    this.startHighScore.textContent = String(this.scoreMgr.highScore);
+    const soundLabel = document.getElementById('sound-label');
+    const soundIcon = document.getElementById('sound-icon');
+    if (soundLabel && soundIcon) {
+      soundLabel.textContent = `SOUND: ${this.soundMgr.getIsMuted() ? 'OFF' : 'ON'}`;
+      soundIcon.textContent = this.soundMgr.getIsMuted() ? '🔇' : '🔊';
+    }
+  }
+
+  public showStartScreen() {
+    this.hudOverlay.classList.add('hidden');
+    this.pauseModal.classList.add('hidden');
+    this.gameoverModal.classList.add('hidden');
+    this.shopModal.classList.add('hidden');
+    this.startScreen.classList.remove('hidden');
+    this.updateStartScreen();
+  }
+
+  public showHUD() {
+    this.startScreen.classList.add('hidden');
+    this.pauseModal.classList.add('hidden');
+    this.gameoverModal.classList.add('hidden');
+    this.shopModal.classList.add('hidden');
+    this.hudOverlay.classList.remove('hidden');
+  }
+
+  public showPauseModal() {
+    this.pauseModal.classList.remove('hidden');
+  }
+
+  public hidePauseModal() {
+    this.pauseModal.classList.add('hidden');
+  }
+
+  public showGameOverModal(isNewHighScore: boolean) {
+    this.hudOverlay.classList.add('hidden');
+    this.gameoverModal.classList.remove('hidden');
+
+    this.goScore.textContent = String(Math.floor(this.scoreMgr.score));
+    this.goDist.textContent = `${this.scoreMgr.distance}m`;
+    this.goCoins.textContent = String(this.scoreMgr.coins);
+    this.goBest.textContent = String(this.scoreMgr.highScore);
+
+    if (isNewHighScore) {
+      this.newRecordTag.classList.remove('hidden');
+    } else {
+      this.newRecordTag.classList.add('hidden');
+    }
+  }
+
+  public openShopModal(player: Player) {
+    this.shopModal.classList.remove('hidden');
+    this.renderShopUI(player);
+  }
+
+  public closeShopModal() {
+    this.shopModal.classList.add('hidden');
+    this.updateStartScreen();
+  }
+
+  public updateHUD(speed: number, currentSectorIndex: number) {
+    this.hudScore.textContent = String(Math.floor(this.scoreMgr.score));
+    this.hudDistance.textContent = `${this.scoreMgr.distance}m`;
+    this.hudCoins.textContent = String(this.scoreMgr.coins);
+    this.hudMultiplier.textContent = `${this.scoreMgr.multiplier}x`;
+
+    const sectorNames = ['SECTOR 1 • NEON CYCLONE', 'SECTOR 2 • SYNTHWAVE CITY', 'SECTOR 3 • AMBER MATRIX', 'SECTOR 4 • EMERALD GRID', 'SECTOR 5 • VIOLET APEX'];
+    this.levelBadge.textContent = sectorNames[currentSectorIndex % sectorNames.length];
+
+    // Render Power-up Pills
+    this.hudPowerups.innerHTML = '';
+    this.scoreMgr.activePowerups.forEach((pu) => {
+      const pill = document.createElement('div');
+      pill.className = 'powerup-pill';
+
+      const icons = { MAGNET: '🧲', SHIELD: '🛡️', MULTIPLIER: '⚡' };
+      const titles = { MAGNET: 'MAGNET ACTIVE', SHIELD: 'SHIELD ACTIVE', MULTIPLIER: '2X SCORE' };
+
+      const pct = (pu.duration / pu.maxDuration) * 100;
+
+      pill.innerHTML = `
+        <span class="powerup-pill-icon">${icons[pu.type]}</span>
+        <div class="powerup-pill-info">
+          <span class="powerup-pill-title">${titles[pu.type]}</span>
+          <div class="powerup-timer-bar">
+            <div class="powerup-timer-fill" style="width: ${pu.type === 'SHIELD' ? '100%' : pct + '%'};"></div>
+          </div>
+        </div>
+      `;
+      this.hudPowerups.appendChild(pill);
+    });
+  }
+
+  private initShopTabs() {
+    const tabs = document.querySelectorAll('.shop-tab');
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        tabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+
+        const target = tab.getAttribute('data-tab');
+        document.querySelectorAll('.shop-tab-content').forEach(c => c.classList.remove('active'));
+        document.getElementById(`tab-${target}`)?.classList.add('active');
+      });
+    });
+  }
+
+  public renderShopUI(player: Player) {
+    this.shopCoins.textContent = String(this.scoreMgr.totalCoinsOwned);
+
+    // Update upgrade buttons state & bars
+    const updateCard = (type: 'magnet' | 'shield' | 'multiplier') => {
+      const upg = this.shopMgr.upgrades[type];
+      const barContainer = document.getElementById(`lvl-bar-${type}`);
+      const btn = document.getElementById(`btn-upg-${type}`) as HTMLButtonElement;
+
+      if (barContainer) {
+        barContainer.innerHTML = '';
+        for (let i = 1; i <= upg.maxLevel; i++) {
+          const bar = document.createElement('span');
+          bar.className = `bar ${i <= upg.level ? 'fill' : ''}`;
+          barContainer.appendChild(bar);
+        }
+      }
+
+      if (btn) {
+        if (upg.level >= upg.maxLevel) {
+          btn.innerHTML = `<span class="upg-lbl">MAX LEVEL</span>`;
+          btn.disabled = true;
+        } else {
+          const cost = this.shopMgr.getUpgradeCost(type);
+          btn.innerHTML = `<span class="price-val">${cost} Orbs</span><span class="upg-lbl">UPGRADE</span>`;
+          btn.disabled = !this.shopMgr.canUpgrade(type, this.scoreMgr.totalCoinsOwned);
+        }
+      }
+    };
+
+    updateCard('magnet');
+    updateCard('shield');
+    updateCard('multiplier');
+
+    // Render Skins Grid
+    const skinsContainer = document.getElementById('skins-container');
+    if (skinsContainer) {
+      skinsContainer.innerHTML = '';
+      this.shopMgr.skins.forEach(skin => {
+        const card = document.createElement('div');
+        card.className = `skin-card ${skin.equipped ? 'equipped' : ''}`;
+
+        card.innerHTML = `
+          <div class="skin-preview-swatch" style="background-color: #${skin.primaryColor.toString(16).padStart(6, '0')}; color: #${skin.glowColor.toString(16).padStart(6, '0')};"></div>
+          <div class="skin-name">${skin.name}</div>
+          <button class="btn btn-sm ${skin.equipped ? 'btn-secondary' : 'btn-primary'}" ${skin.equipped ? 'disabled' : ''}>
+            ${skin.equipped ? 'EQUIPPED' : 'EQUIP'}
+          </button>
+        `;
+
+        const btn = card.querySelector('button');
+        if (btn && !skin.equipped) {
+          btn.addEventListener('click', () => {
+            const equipped = this.shopMgr.equipSkin(skin.id);
+            if (equipped) {
+              player.setSkin(equipped.primaryColor, equipped.glowColor);
+            }
+            this.renderShopUI(player);
+          });
+        }
+
+        skinsContainer.appendChild(card);
+      });
+    }
+  }
+}
