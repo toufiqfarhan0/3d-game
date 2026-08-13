@@ -4,23 +4,26 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Vite](https://img.shields.io/badge/Vite-5.0-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
 [![Web Audio API](https://img.shields.io/badge/Web_Audio_API-Procedural-FF8800?style=for-the-badge&logo=webaudio&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API)
+[![AO Agents](https://img.shields.io/badge/Made_with-AO_Agents-00f0ff?style=for-the-badge&logo=robot&logoColor=black)](https://aoagents.dev/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](LICENSE)
 
-An endless, high-octane **3D sci-fi runner game** built with **Three.js**, **TypeScript**, and **Vite**. Navigate high-speed neon tracks, dodge procedural sci-fi obstacles, collect energy orbs, activate powerful cyber upgrades, and enjoy meme sound effects and a Disco Ball meme dance break!
+An endless, high-octane **3D sci-fi runner game** built with **Three.js**, **TypeScript**, and **Vite**. Navigate high-speed elevated expressways, dodge realistic sci-fi obstacles and autonomous drones, collect energy data orbs, activate cyber upgrades, and experience ultra-smooth 60+ FPS gameplay.
 
 ---
 
 ## 🚀 Overview
 
-**AO RUN** combines classic endless runner mechanics (lane shifting, jumping, sliding) with modern WebGL graphics, procedural track generation, dynamic lighting, and an interactive meme sound engine. The player controls a cybernetic runner traversing synthwave sectors that dynamically change visual themes, speed, and difficulty as distance increases.
+**AO RUN** merges classic endless runner gameplay (lane shifting, jumping, sliding) with a hyper-realistic 3D expressway environment, zero-GC object pooling performance engine, tactical military HUD aesthetics, and responsive cross-platform controls.
 
-### Core Highlights
-- **Endless Procedural Track**: Infinite track segment generation with auto-recycling and sector theme color shifts every 400 meters.
-- **Customizable Life Modes**: Choose between **1 Life (Hardcore)**, **3 Lives (Default)**, or **5 Lives (Casual)** with visual heart indicators and invincibility frames.
-- **Power-ups & Easter Eggs**: Collect Energy Orbs, Cyber Shields, 2X Score Multipliers, and trigger the hilarious **Disco Ball Meme Dance Break**!
-- **Meme Sound Effects & Audio Synthesizer**: 10 iconic meme SFX with Web Audio API procedural synthesis fallback for 100% offline, zero-latency audio generation.
-- **Dynamic Dual Themes**: Instant toggle between **Dark Mode** (Neon Synthwave) and **Light Mode** (Clean High-Contrast) with real-time lighting adjustments.
-- **Cross-Platform Responsive Controls**: Full support for Keyboard (WASD / Arrows / Space), Touch Gestures & Mobile Overlay Buttons, and Mouse interactions.
+### 🌟 Key Highlights
+- **Realistic 3D Expressway & Metropolis**: 3-lane PBR asphalt with division paint, concrete K-Rail Jersey barriers, elevated bridge substructure, overhead LED gantries, cobra-head streetlights, and glowing skyscraper facades.
+- **Articulated Exoskeleton Runner**: Modular character featuring carbon-fiber armor, spine vertebrae, gold reflective helmet visor, jetpack thrusters, realistic running mechanics, jump tucks, and slide friction sparks.
+- **Realistic Obstacles**: Construction barricades with active flashing amber strobes, overhead industrial steam pipes with clearance telltale bars, ISO shipping containers with twistlocks, and autonomous quad-rotor police drones with spinning blades and scanning light cones.
+- **Zero-GC Performance Engine**: `SharedAssets` singleton, fixed 10-segment track pool, pre-allocated obstacle/collectible pools, $O(1)$ ring buffer particle system, capped `devicePixelRatio: 2`, and fast AABB collision math to maintain locked 60+ FPS.
+- **Tactical Cyberpunk HUD**: Military-grade glassmorphic panels with polygon clip-paths (`clip-path: polygon(...)`), segmented energy cell health indicators, dynamic power-up capsules, CRT scanline overlay, reticle crosshair, and zero-padded metric score display.
+- **Fully Responsive Design**: Fluid `clamp()` typography and container layouts adapting seamlessly across mobile (320px+), tablet (768px+), desktop (1024px+), and landscape viewports with `touch-action: manipulation` optimization.
+- **Customizable Life Modes**: Choose between **1 Core (Hardcore)**, **3 Cores (Standard)**, or **5 Cores (Overcharged)**.
+- **AO Branding**: Sleek footer badge crediting [AO (https://aoagents.dev/)](https://aoagents.dev/).
 
 ---
 
@@ -28,63 +31,39 @@ An endless, high-octane **3D sci-fi runner game** built with **Three.js**, **Typ
 
 | Technology | Purpose | Key Details |
 | :--- | :--- | :--- |
-| **Three.js (r160)** | 3D Graphics Engine | WebGL renderer, custom geometry construction, ACES Filmic Tone Mapping, PCF Shadow Mapping, point/hemisphere lighting |
-| **TypeScript (v5.3)** | Core Logic & Architecture | Object-oriented modular design, strict static typing, event-driven input architecture |
-| **Vite (v5.0)** | Build Tool & Dev Server | Fast Hot Module Replacement (HMR), optimized production bundling with ES modules |
-| **Web Audio API** | Procedural Audio Engine | Zero-dependency synthesized audio (oscillators, envelopes, gain nodes, synthwave bass loops) |
-| **Vanilla CSS3** | UI & Glassmorphism | CSS Custom Variables, backdrop filters, responsive flex/grid HUD, glitch titles, theme transitions |
+| **Three.js (r160)** | 3D Graphics Engine | WebGL renderer, custom PBR materials, ACES Filmic Tone Mapping, directional shadow maps, exponential fog (`FogExp2`) |
+| **TypeScript (v5.3)** | Core Logic & Systems | Strict static typing, modular object-oriented architecture, zero-alloc event handlers |
+| **Vite (v5.0)** | Build Tool & Server | Instant HMR dev server, tree-shaken production bundling with ES modules |
+| **Web Audio API** | Procedural Audio | Zero-dependency synthesized audio (oscillators, envelopes, gain nodes, ambient synthwave loops) |
+| **Vanilla CSS3** | HUD & Tactical UI | CSS custom properties, backdrop-filter glassmorphism, polygon clip-paths, fluid `clamp()` responsive scaling |
+| **AO Agents Framework** | AI Orchestration | Multi-agent autonomous system engineering by [AO](https://aoagents.dev/) |
 
 ---
 
-## 🎮 Key Features
+## 🎮 Game Features & Mechanics
 
-### 1. Endless 3D Procedural Track & Sectors
-- **Infinite Generation**: Track segments ($40\text{m}$ each) are spawned ahead of the player and recycled behind to maintain high performance without memory leaks.
-- **Dynamic Sector Themes**: Every $400\text{m}$, the environment seamlessly shifts between 5 sci-fi color themes:
-  - **Sector 1**: Neon Cyan (`#00f0ff`) — Warm Up
-  - **Sector 2**: Synthwave Magenta (`#ff007f`) — City Circuit
-  - **Sector 3**: Amber Matrix (`#ffaa00`) — Solar Grid
-  - **Sector 4**: Emerald Grid (`#00ff88`) — Cyber Forest
-  - **Sector 5**: Violet Apex (`#aa00ff`) — Hyper Drive
-- **Progressive Speed Scaling**: Speed dynamically accelerates from base speed ($28\text{ m/s}$) up to maximum speed ($45\text{ m/s}$) as distance increases.
+### 1. Realistic 3D Highway & Metropolis
+- **3-Lane PBR Asphalt**: Division markings featuring solid yellow left edge, 2 dashed white lane lines, and solid white right shoulder.
+- **Elevated Substructure**: Concrete bridge deck slab, steel I-beams, and massive cylindrical pier columns with hammerhead caps.
+- **Jersey K-Rail Barriers**: Precast concrete crash barriers with hazard stripes and reflective amber markers.
+- **Metropolis Backdrop**: Dense skyline of skyscrapers with window mullions, rooftop penthouses, and red FAA aviation beacons.
 
-### 2. Player Mechanics & Movement Controls
-- **Smooth 3-Lane Shifting**: Player switches between Left ($X = -3.2$), Center ($X = 0$), and Right ($X = 3.2$) lanes using smooth lerp interpolation and bank/roll angles.
-- **Jumping**: Jump physics powered by vertical velocity ($v_y = 17$) and gravity ($g = -42\text{ m/s}^2$).
-- **Sliding**: Ducking scale deformation ($1.1 \times 0.45 \times 1.2$), torso bend angle ($0.5\text{ rad}$), and collision height reduction over $0.65\text{s}$ duration.
-- **Invincibility Frames (i-frames)**: Upon taking damage, the player gains $1.5\text{s}$ of invincibility accompanied by a high-frequency ($14\text{ Hz}$) visual blinking animation to prevent multi-hit crashes.
+### 2. Obstacles & Drones
+- 🚧 **Construction Barricade**: Low hazard barrier with active flashing amber strobe light (**JUMP** over).
+- 💨 **Industrial Steam Pipe**: Overhead high clearance pipe with hanging warning telltale bars (**SLIDE** under).
+- 📦 **ISO Shipping Container**: Heavy intermodal cargo block occupying an entire lane (**LANE SHIFT**).
+- 🛸 **Autonomous Police Drone**: Quad-rotor drone with spinning blades and downward scanning light cone (**LANE SHIFT**).
 
-### 3. Customizable Life Modes
-Players can configure their desired difficulty on the Start Screen before running:
-- ❤️ **3 Lives (Default Mode)**: Balanced runner experience with heart HUD tracking and i-frame recovery.
-- 💀 **1 Life (Hardcore Mode)**: One collision instantly ends the run for maximum challenge.
-- 🛡️ **5 Lives (Casual Mode)**: For forgiving exploration and high-score grinding.
+### 3. Collectibles & Cyber Upgrades
+- ❖ **Energy Data Orbs**: Gold octahedron gems adding $+50 \times \text{Multiplier}$ score and Orb currency.
+- 🛡️ **Kinetic Shield Barrier**: Cyan wireframe sphere absorbing 1 fatal collision crash with a shield-shatter particle explosion.
+- ⚡ **Quantum Score Surge**: Electric pink cone doubling score accumulation speed with a dynamic HUD timer capsule.
 
-### 4. Collectibles & Power-ups
-- 🌟 **Energy Orbs**: Gold octahedron gems with surrounding neon halos. Adds $+50 \times \text{Multiplier}$ score and increases Orb currency.
-- 🛡️ **Cyber Shield**: Cyan wireframe icosahedron sphere. Completely absorbs 1 fatal obstacle collision with shield-shatter particle explosion.
-- ⚡ **2X Score Multiplier**: Electric pink double-cone gem. Doubles score accumulation speed with a dynamic HUD timer bar.
-- 🪩 **Disco Ball Meme Dance Break**: Rare collectible triggering dynamic party lights, floating mirror disco ball, and player dance groove!
-
-### 5. Obstacle Types
-- 🛑 **Low Barrier**: Hot pink neon hurdle requiring the player to **JUMP**.
-- 🪟 **High Gate**: Electric amber laser gate requiring the player to **SLIDE**.
-- 📦 **Full Block**: Cyber neon crate blocking an entire lane requiring a **LANE SHIFT**.
-- 🛸 **Moving Drone**: Electric violet drone oscillating horizontally across lanes.
-- ⚡ **Laser Barrier**: Dual-column high-energy laser fence spanning multiple lanes.
-
----
-
-## 🌗 Visuals & Dynamic Dual Themes
-
-### Lighting & Post-Processing
-- **ACES Filmic Tone Mapping**: Exposure compensation set to $1.25$ for vivid neon pop.
-- **PCF Shadow Mapping**: Dynamic 1024x1024 directional shadow camera following player movement.
-- **Fog Effects**: Exponential distance fog (`FogExp2`) blending the track into background color.
-
-### Theme Modes
-- **Dark Theme (Default)**: Deep space backdrop (`#050713`), cyan/magenta hemisphere lighting, glowing neon rails.
-- **Light Theme**: Clean slate backdrop (`#e2e8f0`), neutral daylight hemisphere, high-contrast dark slate track surface.
+### 4. Zero-GC Performance Optimization
+- **Shared Assets**: Pre-allocated Three.js geometries and PBR materials shared across all track segments and obstacles.
+- **Track & Obstacle Pooling**: Fixed 10-segment track pool relocated ahead using `reposition()` instead of calling `scene.remove()` or `geometry.dispose()`.
+- **$O(1)$ Particle Ring Buffer**: Single `THREE.Points` BufferGeometry with an 800-node ring buffer for thruster sparks, ore pickups, and slide friction sparks without runtime heap allocations.
+- **Fast Collision Checks**: High-speed AABB bounding box and sphere math replacing heavy mesh raycasting.
 
 ---
 
@@ -92,37 +71,38 @@ Players can configure their desired difficulty on the Start Screen before runnin
 
 For touch-screen devices and mobile browsers:
 - **Swipe Gestures**: Swipe Left/Right to change lanes, Swipe Up to jump, Swipe Down to slide.
-- **On-Screen Touch Buttons**: Dedicated semi-transparent touch zones for **LEFT**, **RIGHT**, **JUMP**, and **SLIDE**.
+- **On-Screen Touch Zones**: Semi-transparent tactical touch buttons for **LEFT (◀)**, **RIGHT (▶)**, **JUMP**, and **SLIDE**.
+- **Touch Manipulation**: `touch-action: manipulation` enabled to prevent double-tap zoom delay or gesture conflicts.
 
 ---
 
 ## 📁 Project Architecture
 
 ```
-cyber-runner-3d/
-├── index.html              # Entry HTML file containing Canvas & HUD/Modal UI markup
-├── package.json            # Project manifest & dependency configuration
-├── tsconfig.json           # TypeScript compilation settings
-├── vite.config.ts          # Vite build & server configuration
+3d-game/
+├── index.html              # Entry HTML with tactical HUD & AO credit markup
+├── package.json            # Project dependencies & build scripts
+├── tsconfig.json           # TypeScript configuration
+├── vite.config.ts          # Vite build settings
 └── src/
-    ├── main.ts             # Application entry point instantiating Game logic
-    ├── style.css           # Design tokens, glassmorphism styles & responsive CSS
+    ├── main.ts             # Application entry point
+    ├── style.css           # Tactical design tokens, clip-path panels & responsive CSS
     ├── audio/
-    │   └── SoundManager.ts # Singleton audio controller & Web Audio synth engine
+    │   └── SoundManager.ts # Web Audio synth engine & sound manager
     ├── core/
-    │   ├── CameraManager.ts# Third-person camera tracking, speed FOV & screen shake
-    │   ├── Game.ts         # Central game loop, state machine & collision solver
-    │   └── InputManager.ts # Keyboard, touch gesture & UI button input dispatcher
+    │   ├── CameraManager.ts# Camera tracking, speed FOV & camera shake
+    │   ├── Game.ts         # Main game loop, state machine & collision solver
+    │   └── InputManager.ts # Keyboard, touch gesture & mobile input dispatcher
     ├── entities/
-    │   ├── Collectible.ts  # Energy Orbs, Shield, & Multiplier 3D object meshes
-    │   ├── Obstacle.ts      # Low barriers, High gates, Full blocks, Drones & Lasers
-    │   ├── Player.ts        # Modular 3D player character, physics, roll & i-frames
-    │   └── TrackSegment.ts  # Track floor, neon rails, lane lines & side buildings
+    │   ├── Collectible.ts  # Energy Orbs, Shield, & Multiplier 3D meshes
+    │   ├── Obstacle.ts      # Barricades, Steam pipes, Cargo containers & Drones
+    │   ├── Player.ts        # Modular exoskeleton runner, physics & jetpack
+    │   └── TrackSegment.ts  # 3-lane asphalt highway, Jersey barriers & buildings
     ├── managers/
-    │   ├── ParticleManager.ts# Additive particle pool for explosions & speed lines
-    │   ├── ScoreManager.ts   # Score, distance, orb counting & power-up timing
-    │   ├── ShopManager.ts    # Upgrades & skin customization state management
-    │   └── TrackManager.ts   # Procedural track segment recycling & pattern spawner
+    │   ├── ParticleManager.ts# Single BufferGeometry ring-buffer particle system
+    │   ├── ScoreManager.ts   # Score, distance, orb metrics & powerup timers
+    │   ├── ShopManager.ts    # Upgrades & suit customization state
+    │   └── TrackManager.ts   # Zero-GC track segment recycling & pattern spawner
     └── utils/
         └── MathUtils.ts     # AABB collision detection, lerp & lane constants
 ```
@@ -139,14 +119,14 @@ cyber-runner-3d/
 | **Slide** | `S` or `▼ Down Arrow` | Swipe Down | `SLIDE` Button |
 | **Pause / Resume** | `P` or `Escape` | Tap HUD Pause Button | `⏸` Pause Button |
 | **Toggle Theme** | — | — | `☀️ / 🌙` Theme Button |
-| **Toggle Sound** | — | — | `🔊 / 🔇` Sound Button |
+| **Toggle Audio** | — | — | `🔊 / 🔇` Audio Button |
 
 ---
 
 ## 🛠️ Setup & Development Instructions
 
 ### Prerequisites
-- [Node.js](https://nodejs.org/) (v18.0.0 or higher recommended)
+- [Node.js](https://nodejs.org/) (v18.0.0 or higher)
 - [npm](https://www.npmjs.com/) (v9.0.0 or higher)
 
 ### 1. Clone the Repository
@@ -170,7 +150,7 @@ Open your browser and navigate to `http://localhost:5173`.
 ```bash
 npm run build
 ```
-The optimized production build files will be output to the `dist/` directory.
+The compiled, optimized production files will be output to the `dist/` directory.
 
 ### 5. Preview Production Build
 ```bash
@@ -187,7 +167,7 @@ This project is open-source and available under the [MIT License](LICENSE).
 
 ## 🤖 Built with Agent Orchestrator (AO)
 
-This project was built and orchestrated using [Agent Orchestrator (AO)](https://aoagents.dev/) — the multi-agent coding framework for autonomous software development.
+This project was developed and orchestrated using [Agent Orchestrator (AO)](https://aoagents.dev/) — the multi-agent framework for autonomous software engineering.
 
 <p align="center">
   Crafted with ❤️ and <a href="https://aoagents.dev/">Agent Orchestrator (AO)</a>
