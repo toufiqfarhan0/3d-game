@@ -295,16 +295,18 @@ export class Player {
     this.updateBoundingBox();
   }
 
+  private static _centerBuffer = new THREE.Vector3();
+  private static _sizeBuffer = new THREE.Vector3();
+
   public updateBoundingBox() {
-    // Create bounding box based on active position & height (crouching vs standing)
     const height = this.isSliding ? 0.7 : 1.8;
     const width = 0.9;
     const depth = 0.8;
 
-    this.boundingBox.setFromCenterAndSize(
-      new THREE.Vector3(this.mesh.position.x, this.mesh.position.y + height / 2, this.mesh.position.z),
-      new THREE.Vector3(width, height, depth)
-    );
+    Player._centerBuffer.set(this.mesh.position.x, this.mesh.position.y + height / 2, this.mesh.position.z);
+    Player._sizeBuffer.set(width, height, depth);
+
+    this.boundingBox.setFromCenterAndSize(Player._centerBuffer, Player._sizeBuffer);
   }
 
   public reset() {

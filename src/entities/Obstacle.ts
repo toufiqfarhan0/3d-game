@@ -2,6 +2,25 @@ import * as THREE from 'three';
 
 export type ObstacleType = 'LOW_BARRIER' | 'HIGH_GATE' | 'FULL_BLOCK' | 'MOVING_DRONE' | 'LASER_BARRIER';
 
+// Pre-allocated static vectors for bounding box calculation to prevent per-frame GC allocations
+const BOX_SIZES: Record<ObstacleType, THREE.Vector3> = {
+  LOW_BARRIER: new THREE.Vector3(2.4, 0.7, 0.4),
+  HIGH_GATE: new THREE.Vector3(2.6, 0.8, 0.4),
+  FULL_BLOCK: new THREE.Vector3(2.2, 2.4, 1.2),
+  MOVING_DRONE: new THREE.Vector3(1.8, 1.6, 1.8),
+  LASER_BARRIER: new THREE.Vector3(5.6, 0.3, 0.3)
+};
+
+const BOX_OFFSETS: Record<ObstacleType, number> = {
+  LOW_BARRIER: 0.35,
+  HIGH_GATE: 2.2,
+  FULL_BLOCK: 1.2,
+  MOVING_DRONE: 1.3,
+  LASER_BARRIER: 1.2
+};
+
+const _tempCenter = new THREE.Vector3();
+
 export class Obstacle {
   public mesh: THREE.Group;
   public boundingBox: THREE.Box3 = new THREE.Box3();
@@ -31,7 +50,7 @@ export class Obstacle {
         const mat = new THREE.MeshStandardMaterial({
           color: 0xff0055,
           emissive: 0xff0055,
-          emissiveIntensity: 0.9,
+          emissiveIntensity: 1.2,
           roughness: 0.2,
           metalness: 0.6
         });
@@ -45,11 +64,11 @@ export class Obstacle {
         strip.position.y = 0.35;
 
         // Side neon beacon posts
-        const postGeo = new THREE.CylinderGeometry(0.12, 0.12, 0.9, 12);
+        const postGeo = new THREE.CylinderGeometry(0.12, 0.12, 0.9, 8);
         const postMat = new THREE.MeshStandardMaterial({
           color: 0xff00aa,
           emissive: 0xff00aa,
-          emissiveIntensity: 1.2
+          emissiveIntensity: 1.4
         });
         const post1 = new THREE.Mesh(postGeo, postMat);
         post1.position.set(-1.2, 0.45, 0);
@@ -57,11 +76,6 @@ export class Obstacle {
         post2.position.set(1.2, 0.45, 0);
 
         this.mesh.add(barrier, strip, post1, post2);
-
-        // Warning Light
-        const light = new THREE.PointLight(0xff0055, 3.5, 6);
-        light.position.y = 0.9;
-        this.mesh.add(light);
         break;
       }
 
@@ -71,7 +85,7 @@ export class Obstacle {
         const gateMat = new THREE.MeshStandardMaterial({
           color: 0xff9900,
           emissive: 0xff6600,
-          emissiveIntensity: 0.8,
+          emissiveIntensity: 1.0,
           roughness: 0.2,
           metalness: 0.8
         });
@@ -86,7 +100,7 @@ export class Obstacle {
         const beamMat = new THREE.MeshStandardMaterial({
           color: 0xffff00,
           emissive: 0xffff00,
-          emissiveIntensity: 1.5
+          emissiveIntensity: 1.8
         });
         const beam = new THREE.Mesh(beamGeo, beamMat);
         beam.position.set(0, 2.2, 0);
@@ -97,11 +111,7 @@ export class Obstacle {
         const innerBeam = new THREE.Mesh(innerGeo, innerMat);
         innerBeam.position.set(0, 2.2, 0);
 
-        // Ground clearance warning illumination light
-        const light1 = new THREE.PointLight(0xffff00, 3.0, 7);
-        light1.position.set(0, 1.8, 0);
-
-        this.mesh.add(p1, p2, beam, innerBeam, light1);
+        this.mesh.add(p1, p2, beam, innerBeam);
         break;
       }
 
@@ -139,58 +149,52 @@ export class Obstacle {
         cross2.rotation.z = -Math.PI / 4;
 
         // Top Beacon Light
-        const beaconGeo = new THREE.SphereGeometry(0.25, 12, 12);
+        const beaconGeo = new THREE.SphereGeometry(0.25, 8, 8);
         const beaconMat = new THREE.MeshBasicMaterial({ color: 0x00ffff });
         const beacon = new THREE.Mesh(beaconGeo, beaconMat);
         beacon.position.set(0, 2.55, 0);
 
-        const light = new THREE.PointLight(0x00ffff, 4.0, 8);
-        light.position.set(0, 2.4, 0);
-
-        this.mesh.add(block, topEdge, midEdge, botEdge, cross1, cross2, beacon, light);
+        this.mesh.add(block, topEdge, midEdge, botEdge, cross1, cross2, beacon);
         break;
       }
 
       case 'MOVING_DRONE': {
         // Side-to-side drone moving obstacle: Electric Violet & Neon Cyan
-        const droneGeo = new THREE.SphereGeometry(0.65, 16, 16);
+        const droneGeo = new THREE.SphereGeometry(0.65, 12, 12);
         const droneMat = new THREE.MeshStandardMaterial({
           color: 0xa855f7,
           emissive: 0x9333ea,
-          emissiveIntensity: 1.2,
+          emissiveIntensity: 1.5,
           metalness: 0.9
         });
         const core = new THREE.Mesh(droneGeo, droneMat);
         core.position.y = 1.3;
 
         // Double Counter-Rotating Neon Rings
-        const ring1Geo = new THREE.TorusGeometry(1.0, 0.08, 12, 32);
+        const ring1Geo = new THREE.TorusGeometry(1.0, 0.08, 8, 20);
         const ring1Mat = new THREE.MeshBasicMaterial({ color: 0x00f0ff });
         const ring1 = new THREE.Mesh(ring1Geo, ring1Mat);
         ring1.position.y = 1.3;
         ring1.rotation.x = Math.PI / 2;
 
-        const ring2Geo = new THREE.TorusGeometry(1.2, 0.06, 12, 32);
+        const ring2Geo = new THREE.TorusGeometry(1.2, 0.06, 8, 20);
         const ring2Mat = new THREE.MeshBasicMaterial({ color: 0xff00ff });
         const ring2 = new THREE.Mesh(ring2Geo, ring2Mat);
         ring2.position.y = 1.3;
         ring2.rotation.y = Math.PI / 4;
 
-        const light = new THREE.PointLight(0xbf00ff, 4.5, 8);
-        light.position.y = 1.3;
-
-        this.mesh.add(core, ring1, ring2, light);
+        this.mesh.add(core, ring1, ring2);
         this.moveSpeed = 4.0;
         break;
       }
 
       case 'LASER_BARRIER': {
         // Dual lane laser barrier: Neon Crimson Posts + Dual Intense Laser Beams
-        const postGeo = new THREE.CylinderGeometry(0.2, 0.25, 3, 12);
+        const postGeo = new THREE.CylinderGeometry(0.2, 0.25, 3, 8);
         const postMat = new THREE.MeshStandardMaterial({
           color: 0x222222,
           emissive: 0xff0055,
-          emissiveIntensity: 0.6,
+          emissiveIntensity: 0.8,
           metalness: 0.8
         });
 
@@ -200,7 +204,7 @@ export class Obstacle {
         p2.position.set(2.8, 1.5, 0);
 
         // Glowing Ring Collars on posts
-        const ringGeo = new THREE.TorusGeometry(0.28, 0.05, 8, 16);
+        const ringGeo = new THREE.TorusGeometry(0.28, 0.05, 8, 12);
         const ringMat = new THREE.MeshBasicMaterial({ color: 0xff0055 });
         const r1 = new THREE.Mesh(ringGeo, ringMat);
         r1.position.set(-2.8, 1.2, 0);
@@ -210,33 +214,33 @@ export class Obstacle {
         r2.rotation.x = Math.PI / 2;
 
         // Outer Hot Pink Laser
-        const laserOuterGeo = new THREE.CylinderGeometry(0.12, 0.12, 5.6, 12);
+        const laserOuterGeo = new THREE.CylinderGeometry(0.12, 0.12, 5.6, 8);
         const laserOuterMat = new THREE.MeshBasicMaterial({ color: 0xff0055 });
         const laserOuter = new THREE.Mesh(laserOuterGeo, laserOuterMat);
         laserOuter.rotation.z = Math.PI / 2;
         laserOuter.position.set(0, 1.2, 0);
 
         // Inner White-Hot Beam Core
-        const laserInnerGeo = new THREE.CylinderGeometry(0.05, 0.05, 5.65, 12);
+        const laserInnerGeo = new THREE.CylinderGeometry(0.05, 0.05, 5.65, 8);
         const laserInnerMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
         const laserInner = new THREE.Mesh(laserInnerGeo, laserInnerMat);
         laserInner.rotation.z = Math.PI / 2;
         laserInner.position.set(0, 1.2, 0);
 
-        const light = new THREE.PointLight(0xff0055, 4.0, 9);
-        light.position.set(0, 1.2, 0);
-
-        this.mesh.add(p1, p2, r1, r2, laserOuter, laserInner, light);
+        this.mesh.add(p1, p2, r1, r2, laserOuter, laserInner);
         break;
       }
     }
 
-    this.mesh.traverse((child) => {
-      if (child instanceof THREE.Mesh) {
-        child.castShadow = true;
-        child.receiveShadow = true;
-      }
-    });
+    // Shadow casting for main obstacle mesh blocks
+    if (this.type === 'FULL_BLOCK') {
+      this.mesh.traverse((child) => {
+        if (child instanceof THREE.Mesh) {
+          child.castShadow = true;
+          child.receiveShadow = true;
+        }
+      });
+    }
   }
 
   public update(dt: number) {
@@ -254,37 +258,10 @@ export class Obstacle {
   }
 
   public updateBoundingBox() {
-    switch (this.type) {
-      case 'LOW_BARRIER':
-        this.boundingBox.setFromCenterAndSize(
-          new THREE.Vector3(this.mesh.position.x, this.mesh.position.y + 0.35, this.mesh.position.z),
-          new THREE.Vector3(2.4, 0.7, 0.4)
-        );
-        break;
-      case 'HIGH_GATE':
-        this.boundingBox.setFromCenterAndSize(
-          new THREE.Vector3(this.mesh.position.x, this.mesh.position.y + 2.2, this.mesh.position.z),
-          new THREE.Vector3(2.6, 0.8, 0.4)
-        );
-        break;
-      case 'FULL_BLOCK':
-        this.boundingBox.setFromCenterAndSize(
-          new THREE.Vector3(this.mesh.position.x, this.mesh.position.y + 1.2, this.mesh.position.z),
-          new THREE.Vector3(2.2, 2.4, 1.2)
-        );
-        break;
-      case 'MOVING_DRONE':
-        this.boundingBox.setFromCenterAndSize(
-          new THREE.Vector3(this.mesh.position.x, this.mesh.position.y + 1.3, this.mesh.position.z),
-          new THREE.Vector3(1.8, 1.6, 1.8)
-        );
-        break;
-      case 'LASER_BARRIER':
-        this.boundingBox.setFromCenterAndSize(
-          new THREE.Vector3(this.mesh.position.x, this.mesh.position.y + 1.2, this.mesh.position.z),
-          new THREE.Vector3(5.6, 0.3, 0.3)
-        );
-        break;
-    }
+    const offsetY = BOX_OFFSETS[this.type];
+    const size = BOX_SIZES[this.type];
+
+    _tempCenter.set(this.mesh.position.x, this.mesh.position.y + offsetY, this.mesh.position.z);
+    this.boundingBox.setFromCenterAndSize(_tempCenter, size);
   }
 }

@@ -165,37 +165,86 @@ export class UIManager {
     this.updateStartScreen();
   }
 
+  private _lastScore: number = -1;
+  private _lastDist: number = -1;
+  private _lastCoins: number = -1;
+  private _lastMult: number = -1;
+  private _lastSector: number = -1;
+
   public updateHUD(speed: number, currentSectorIndex: number) {
-    this.hudScore.textContent = String(Math.floor(this.scoreMgr.score));
-    this.hudDistance.textContent = `${this.scoreMgr.distance}m`;
-    this.hudCoins.textContent = String(this.scoreMgr.coins);
-    this.hudMultiplier.textContent = `${this.scoreMgr.multiplier}x`;
+    const currentScore = Math.floor(this.scoreMgr.score);
+    if (currentScore !== this._lastScore) {
+      this._lastScore = currentScore;
+      this.hudScore.textContent = String(currentScore);
+    }
 
-    const sectorNames = ['SECTOR 1 • NEON CYCLONE', 'SECTOR 2 • SYNTHWAVE CITY', 'SECTOR 3 • AMBER MATRIX', 'SECTOR 4 • EMERALD GRID', 'SECTOR 5 • VIOLET APEX'];
-    this.levelBadge.textContent = sectorNames[currentSectorIndex % sectorNames.length];
+    const currentDist = this.scoreMgr.distance;
+    if (currentDist !== this._lastDist) {
+      this._lastDist = currentDist;
+      this.hudDistance.textContent = `${currentDist}m`;
+    }
 
-    // Render Power-up Pills
-    this.hudPowerups.innerHTML = '';
-    this.scoreMgr.activePowerups.forEach((pu) => {
-      const pill = document.createElement('div');
-      pill.className = 'powerup-pill';
+    const currentCoins = this.scoreMgr.coins;
+    if (currentCoins !== this._lastCoins) {
+      this._lastCoins = currentCoins;
+      this.hudCoins.textContent = String(currentCoins);
+    }
 
-      const icons = { MAGNET: '🧲', SHIELD: '🛡️', MULTIPLIER: '⚡' };
-      const titles = { MAGNET: 'MAGNET ACTIVE', SHIELD: 'SHIELD ACTIVE', MULTIPLIER: '2X SCORE' };
+    const currentMult = this.scoreMgr.multiplier;
+    if (currentMult !== this._lastMult) {
+      this._lastMult = currentMult;
+      this.hudMultiplier.textContent = `${currentMult}x`;
+    }
 
-      const pct = (pu.duration / pu.maxDuration) * 100;
+    if (currentSectorIndex !== this._lastSector) {
+      this._lastSector = currentSectorIndex;
+      const sectorNames = ['SECTOR 1 • NEON CYCLONE', 'SECTOR 2 • SYNTHWAVE CITY', 'SECTOR 3 • AMBER MATRIX', 'SECTOR 4 • EMERALD GRID', 'SECTOR 5 • VIOLET APEX'];
+      this.levelBadge.textContent = sectorNames[currentSectorIndex % sectorNames.length];
+    }
 
-      pill.innerHTML = `
-        <span class="powerup-pill-icon">${icons[pu.type]}</span>
-        <div class="powerup-pill-info">
-          <span class="powerup-pill-title">${titles[pu.type]}</span>
-          <div class="powerup-timer-bar">
-            <div class="powerup-timer-fill" style="width: ${pu.type === 'SHIELD' ? '100%' : pct + '%'};"></div>
-          </div>
-        </div>
-      `;
-      this.hudPowerups.appendChild(pill);
-    });
+    // Efficient Power-up Pills update
+    if (this.scoreMgr.activePowerups.size === 0) {
+      if (this.hudPowerups.children.length > 0) {
+        this.hudPowerups.innerHTML = '';
+      }
+    } else {
+      this.scoreMgr.activePowerups.forEach((pu) => {
+        let pill = this.hudPowerups.querySelector(`[data-type="${pu.type}"]`) as HTMLElement;
+        const icons = { MAGNET: '🧲', SHIELD: '🛡️', MULTIPLIER: '⚡' };
+        const titles = { MAGNET: 'MAGNET ACTIVE', SHIELD: 'SHIELD ACTIVE', MULTIPLIER: '2X SCORE' };
+        const pct = Math.max(0, Math.min(100, (pu.duration / pu.maxDuration) * 100));
+
+        if (!pill) {
+          pill = document.createElement('div');
+          pill.className = 'powerup-pill';
+          pill.setAttribute('data-type', pu.type);
+          pill.innerHTML = `
+            <span class="powerup-pill-icon">${icons[pu.type]}</span>
+            <div class="powerup-pill-info">
+              <span class="powerup-pill-title">${titles[pu.type]}</span>
+              <div class="powerup-timer-bar">
+                <div class="powerup-timer-fill"></div>
+              </div>
+            </div>
+          `;
+          this.hudPowerups.appendChild(pill);
+        }
+
+        const fill = pill.querySelector('.powerup-timer-fill') as HTMLElement;
+        if (fill) {
+          fill.style.width = pu.type === 'SHIELD' ? '100%' : `${pct.toFixed(1)}%`;
+        }
+      });
+
+      // Remove expired pills
+      const childArray = Array.from(this.hudPowerups.children);
+      for (const child of childArray) {
+        const type = child.getAttribute('data-type');
+        if (type && !this.scoreMgr.activePowerups.has(type as any)) {
+          child.remove();
+        }
+      }
+    }
   }
 
   private initShopTabs() {
