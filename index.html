@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Cyber Runner 3D | Endless 3D Sci-Fi Runner</title>
+  <meta name="description" content="An endless 3D sci-fi runner game built with Three.js and TypeScript featuring procedural track generation, power-ups, upgrades, and high-octane gameplay.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/src/style.css">
+</head>
+<body>
+  <div id="app-container">
+    <!-- WebGL Canvas -->
+    <canvas id="webgl-canvas"></canvas>
+
+    <!-- In-Game HUD -->
+    <div id="hud-overlay" class="hud-layer hidden">
+      <div class="hud-top-bar">
+        <div class="hud-box score-box">
+          <span class="hud-label">SCORE</span>
+          <span id="hud-score-val" class="hud-val">0</span>
+          <span id="hud-multiplier" class="hud-badge">1x</span>
+        </div>
+
+        <div class="hud-box distance-box">
+          <span class="hud-label">DISTANCE</span>
+          <span id="hud-dist-val" class="hud-val">0m</span>
+        </div>
+
+        <div class="hud-box coin-box">
+          <span class="hud-label">ORBS</span>
+          <div class="orb-counter-val">
+            <span class="orb-icon">◆</span>
+            <span id="hud-coins-val" class="hud-val">0</span>
+          </div>
+        </div>
+
+        <button id="btn-pause-hud" class="icon-btn" title="Pause Game">
+          <span>⏸</span>
+        </button>
+      </div>
+
+      <!-- Powerups Active Status -->
+      <div id="hud-powerups" class="hud-powerups-container">
+        <!-- Dynamic Powerup Pills inserted via JS -->
+      </div>
+
+      <!-- Level & Speed Indicator -->
+      <div class="hud-bottom-bar">
+        <div id="level-badge" class="level-indicator">SECTOR 1 • WARM UP</div>
+        <div class="controls-hint">
+          <span>A / D or ◄ ►: Change Lane</span>
+          <span>W / ▲: Jump</span>
+          <span>S / ▼: Slide</span>
+        </div>
+      </div>
+
+      <!-- Mobile Touch Controls Overlay -->
+      <div id="touch-controls" class="mobile-touch-layer">
+        <div class="touch-zone lane-left" id="touch-left">◀</div>
+        <div class="touch-center-zone">
+          <div class="touch-btn jump-btn" id="touch-jump">JUMP</div>
+          <div class="touch-btn slide-btn" id="touch-slide">SLIDE</div>
+        </div>
+        <div class="touch-zone lane-right" id="touch-right">▶</div>
+      </div>
+    </div>
+
+    <!-- Start Screen Overlay -->
+    <div id="start-screen" class="screen-overlay active">
+      <div class="glass-card title-card">
+        <div class="game-badge">INFINITE 3D RUNNER</div>
+        <h1 class="glitch-title" data-text="CYBER RUNNER">CYBER RUNNER</h1>
+        <p class="subtitle">Dodge obstacles, gather energy orbs, unlock upgrades, and run infinitely through synthwave sectors!</p>
+
+        <div class="high-score-banner">
+          <span class="trophy-icon">🏆</span>
+          <span>HIGH SCORE: <strong id="start-high-score">0</strong></span>
+        </div>
+
+        <div class="start-actions">
+          <button id="btn-start-game" class="btn btn-primary btn-glow">
+            <span>RUN NOW</span>
+            <span class="btn-subtext">Press SPACE or Click</span>
+          </button>
+
+          <button id="btn-open-shop" class="btn btn-secondary">
+            <span>UPGRADES & SKINS</span>
+          </button>
+        </div>
+
+        <div class="audio-toggle-container">
+          <button id="btn-toggle-sound" class="btn-text-icon">
+            <span id="sound-icon">🔊</span>
+            <span id="sound-label">SOUND: ON</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Shop / Upgrades Modal -->
+    <div id="shop-modal" class="screen-overlay hidden">
+      <div class="glass-card shop-card">
+        <div class="shop-header">
+          <h2>CYBER LAB & UPGRADES</h2>
+          <div class="shop-coins">
+            <span class="orb-icon">◆</span>
+            <span id="shop-coin-count">0</span> ORBS
+          </div>
+          <button id="btn-close-shop" class="close-btn">&times;</button>
+        </div>
+
+        <div class="shop-tabs">
+          <button class="shop-tab active" data-tab="upgrades">POWER-UP UPGRADES</button>
+          <button class="shop-tab" data-tab="skins">RUNNER SUITS</button>
+        </div>
+
+        <div class="shop-tab-content active" id="tab-upgrades">
+          <div class="upgrade-grid">
+            <div class="upgrade-card" id="upg-magnet">
+              <div class="upg-icon">🧲</div>
+              <div class="upg-info">
+                <h3>Orb Magnet</h3>
+                <p>Attracts energy orbs from all lanes automatically.</p>
+                <div class="upg-level-bar" id="lvl-bar-magnet">
+                  <span class="bar fill"></span><span class="bar fill"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span>
+                </div>
+              </div>
+              <button class="btn btn-sm btn-upgrade" id="btn-upg-magnet">
+                <span class="price-val">50 Orbs</span>
+                <span class="upg-lbl">UPGRADE</span>
+              </button>
+            </div>
+
+            <div class="upgrade-card" id="upg-shield">
+              <div class="upg-icon">🛡️</div>
+              <div class="upg-info">
+                <h3>Energy Shield</h3>
+                <p>Protects from 1 fatal collision crash.</p>
+                <div class="upg-level-bar" id="lvl-bar-shield">
+                  <span class="bar fill"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span>
+                </div>
+              </div>
+              <button class="btn btn-sm btn-upgrade" id="btn-upg-shield">
+                <span class="price-val">75 Orbs</span>
+                <span class="upg-lbl">UPGRADE</span>
+              </button>
+            </div>
+
+            <div class="upgrade-card" id="upg-multiplier">
+              <div class="upg-icon">⚡</div>
+              <div class="upg-info">
+                <h3>Score Surge</h3>
+                <p>Increases score multiplier duration & boost rate.</p>
+                <div class="upg-level-bar" id="lvl-bar-multiplier">
+                  <span class="bar fill"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span>
+                </div>
+              </div>
+              <button class="btn btn-sm btn-upgrade" id="btn-upg-multiplier">
+                <span class="price-val">100 Orbs</span>
+                <span class="upg-lbl">UPGRADE</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="shop-tab-content" id="tab-skins">
+          <div class="skins-grid" id="skins-container">
+            <!-- Dynamic skin cards rendered via JS -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pause Screen -->
+    <div id="pause-modal" class="screen-overlay hidden">
+      <div class="glass-card pause-card">
+        <h2>GAME PAUSED</h2>
+        <div class="pause-actions">
+          <button id="btn-resume-game" class="btn btn-primary">RESUME</button>
+          <button id="btn-restart-pause" class="btn btn-secondary">RESTART</button>
+          <button id="btn-quit-main" class="btn btn-secondary">MAIN MENU</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Game Over Screen -->
+    <div id="gameover-modal" class="screen-overlay hidden">
+      <div class="glass-card gameover-card">
+        <div id="new-highscore-tag" class="new-record-tag hidden">🎉 NEW HIGH SCORE! 🎉</div>
+        <h2 class="gameover-title">CRASHED!</h2>
+        
+        <div class="stats-summary">
+          <div class="stat-row">
+            <span>FINAL SCORE</span>
+            <strong id="go-score">0</strong>
+          </div>
+          <div class="stat-row">
+            <span>DISTANCE</span>
+            <strong id="go-dist">0m</strong>
+          </div>
+          <div class="stat-row">
+            <span>ORBS COLLECTED</span>
+            <strong id="go-coins">0</strong>
+          </div>
+          <div class="stat-row">
+            <span>BEST SCORE</span>
+            <strong id="go-best">0</strong>
+          </div>
+        </div>
+
+        <div class="gameover-actions">
+          <button id="btn-restart-game" class="btn btn-primary btn-glow">
+            <span>RUN AGAIN</span>
+            <span class="btn-subtext">Press SPACE or Click</span>
+          </button>
+          <button id="btn-gameover-shop" class="btn btn-secondary">SHOP & UPGRADES</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
