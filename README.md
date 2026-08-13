@@ -209,6 +209,12 @@ npm run preview
 
 ---
 
+## 🤖 Built with Agent Orchestrator (AO)
+
+This project was built and orchestrated using [Agent Orchestrator (AO)](https://aoagents.dev/) — the multi-agent coding framework for autonomous software development.
+
+---
+
 ## 📜 License
 
 This project is open-source and available under the [MIT License](LICENSE).
@@ -216,5 +222,5 @@ This project is open-source and available under the [MIT License](LICENSE).
 ---
 
 <p align="center">
-  Crafted with ❤️ for high-octane 3D gaming enthusiasts!
+  Crafted with ❤️ and <a href="https://aoagents.dev/">Agent Orchestrator (AO)</a> for high-octane 3D gaming enthusiasts!
 </p>
