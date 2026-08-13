@@ -140,7 +140,30 @@ export class SoundManager {
     } catch (e) {}
   }
 
-  // Crash / Hit sound
+  // Non-fatal hit sound effect (when losing a life)
+  public playHit() {
+    if (this.isMuted) return;
+    try {
+      const ctx = this.initCtx();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(220, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(70, ctx.currentTime + 0.2);
+
+      gain.gain.setValueAtTime(0.25, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start();
+      osc.stop(ctx.currentTime + 0.2);
+    } catch (e) {}
+  }
+
+  // Crash / Fatal hit sound
   public playCrash() {
     if (this.isMuted) return;
     try {

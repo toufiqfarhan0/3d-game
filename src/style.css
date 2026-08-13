@@ -121,6 +121,57 @@ html, body {
   box-shadow: 0 0 10px rgba(255, 0, 127, 0.6);
 }
 
+/* Damage Flash Overlay */
+.damage-flash-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 8;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, rgba(255, 0, 50, 0) 30%, rgba(255, 0, 50, 0.65) 100%);
+  opacity: 0;
+  transition: opacity 0.1s ease-out;
+}
+
+.damage-flash-overlay.flash-active {
+  opacity: 1;
+}
+
+.lives-box {
+  min-width: 120px;
+}
+
+.lives-container {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 2px;
+}
+
+.heart-icon {
+  font-size: 1.2rem;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  filter: drop-shadow(0 0 6px rgba(255, 0, 80, 0.8));
+}
+
+.heart-icon.lost {
+  opacity: 0.25;
+  filter: grayscale(1);
+  transform: scale(0.8);
+}
+
+.heart-icon.pop {
+  animation: heartPop 0.4s ease forwards;
+}
+
+@keyframes heartPop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.5); filter: drop-shadow(0 0 15px #ff0055); }
+  100% { transform: scale(0.8); opacity: 0.25; filter: grayscale(1); }
+}
+
 .orb-counter-val {
   display: flex;
   align-items: center;
@@ -383,7 +434,70 @@ html, body {
   font-family: var(--font-heading);
   font-size: 0.9rem;
   color: var(--accent-gold);
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Life Mode Selector */
+.life-mode-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.8rem;
+  width: 100%;
+}
+
+.life-mode-label {
+  font-family: var(--font-heading);
+  font-size: 0.75rem;
+  letter-spacing: 2px;
+  color: var(--text-muted);
+}
+
+.life-mode-selector {
+  display: flex;
+  gap: 0.6rem;
+  width: 100%;
+  justify-content: center;
+}
+
+.life-btn {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  padding: 0.6rem 0.5rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.life-btn:hover {
+  background: rgba(0, 240, 255, 0.1);
+  border-color: var(--primary-cyan);
+  color: #fff;
+}
+
+.life-btn.active {
+  background: linear-gradient(135deg, rgba(0, 240, 255, 0.25), rgba(255, 0, 127, 0.25));
+  border-color: var(--primary-cyan);
+  color: #fff;
+  box-shadow: 0 0 12px rgba(0, 240, 255, 0.3);
+}
+
+.life-btn-title {
+  font-family: var(--font-heading);
+  font-size: 0.85rem;
+  font-weight: 800;
+}
+
+.life-btn-sub {
+  font-size: 0.65rem;
+  opacity: 0.7;
 }
 
 /* Buttons */

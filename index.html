@@ -15,6 +15,9 @@
     <!-- WebGL Canvas -->
     <canvas id="webgl-canvas"></canvas>
 
+    <!-- Damage Screen Flash Overlay -->
+    <div id="damage-flash" class="damage-flash-overlay"></div>
+
     <!-- In-Game HUD -->
     <div id="hud-overlay" class="hud-layer hidden">
       <div class="hud-top-bar">
@@ -22,6 +25,15 @@
           <span class="hud-label">SCORE</span>
           <span id="hud-score-val" class="hud-val">0</span>
           <span id="hud-multiplier" class="hud-badge">1x</span>
+        </div>
+
+        <div class="hud-box lives-box">
+          <span class="hud-label">LIVES</span>
+          <div id="hud-lives-container" class="lives-container">
+            <span class="heart-icon active">❤️</span>
+            <span class="heart-icon active">❤️</span>
+            <span class="heart-icon active">❤️</span>
+          </div>
         </div>
 
         <div class="hud-box distance-box">
@@ -78,6 +90,25 @@
         <div class="high-score-banner">
           <span class="trophy-icon">🏆</span>
           <span>HIGH SCORE: <strong id="start-high-score">0</strong></span>
+        </div>
+
+        <!-- Life Option Selection -->
+        <div class="life-mode-container">
+          <span class="life-mode-label">LIFE MODE:</span>
+          <div class="life-mode-selector">
+            <button class="life-btn active" data-lives="3" id="btn-lives-3">
+              <span class="life-btn-title">3 LIVES</span>
+              <span class="life-btn-sub">DEFAULT</span>
+            </button>
+            <button class="life-btn" data-lives="1" id="btn-lives-1">
+              <span class="life-btn-title">1 LIFE</span>
+              <span class="life-btn-sub">HARDCORE</span>
+            </button>
+            <button class="life-btn" data-lives="5" id="btn-lives-5">
+              <span class="life-btn-title">5 LIVES</span>
+              <span class="life-btn-sub">CASUAL</span>
+            </button>
+          </div>
         </div>
 
         <div class="start-actions">
@@ -204,6 +235,10 @@
           <div class="stat-row">
             <span>ORBS COLLECTED</span>
             <strong id="go-coins">0</strong>
+          </div>
+          <div class="stat-row">
+            <span>HITS TAKEN</span>
+            <strong id="go-hits">3 / 3</strong>
           </div>
           <div class="stat-row">
             <span>BEST SCORE</span>

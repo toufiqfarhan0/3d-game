@@ -151,6 +151,12 @@ export class Game {
 
     this.scoreMgr.resetRun();
     this.player.reset();
+    
+    // Initialize Starting Lives from UI selection (Default 3 lives)
+    const selectedLives = this.uiMgr.selectedLives || 3;
+    this.player.resetLives(selectedLives);
+    this.uiMgr.updateLives(this.player.lives, this.player.maxLives);
+
     this.trackMgr.initTrack();
 
     this.uiMgr.showHUD();
@@ -178,7 +184,8 @@ export class Game {
 
     const isNewHighScore = this.scoreMgr.score > this.scoreMgr.highScore;
     this.scoreMgr.saveToStorage();
-    this.uiMgr.showGameOverModal(isNewHighScore);
+    const hitsTaken = this.player.maxLives - this.player.lives;
+    this.uiMgr.showGameOverModal(isNewHighScore, hitsTaken);
   }
 
   public quitToMain() {
@@ -231,6 +238,9 @@ export class Game {
     // 5. Collision Checks: Player vs Obstacles
     this.trackMgr.obstacles.forEach(obs => {
       if (obs.active && checkAABBCollision(this.player.boundingBox, obs.boundingBox)) {
+        // Skip collision if player is currently invincible (i-frame)
+        if (this.player.isInvincible) return;
+
         if (this.scoreMgr.consumeShield()) {
           // Shield protected from fatal crash!
           obs.active = false;
@@ -239,7 +249,24 @@ export class Game {
           this.particleMgr.spawnBurst(this.player.mesh.position, 0x00f0ff, 30);
           this.cameraMgr.triggerShake(0.4);
         } else {
-          this.gameOver();
+          // Deactivate hit obstacle so player doesn't continuously collide
+          obs.active = false;
+          obs.mesh.visible = false;
+
+          // Take damage: lose 1 life
+          const remainingLives = this.player.takeDamage(1);
+          this.uiMgr.updateLives(remainingLives, this.player.maxLives);
+          this.uiMgr.flashDamageScreen();
+
+          if (remainingLives <= 0) {
+            // All 3 lives lost -> Game Over!
+            this.gameOver();
+          } else {
+            // Non-fatal hit: play hit sound effect, explosion particles, camera shake
+            this.soundMgr.playHit();
+            this.particleMgr.spawnBurst(this.player.mesh.position, 0xff0055, 30);
+            this.cameraMgr.triggerShake(0.5);
+          }
         }
       }
     });

@@ -45,6 +45,13 @@ export class Player {
   public magnetActive: boolean = false;
   public magnetRadius: number = 15;
 
+  // Lives & Invincibility State
+  public lives: number = 3;
+  public maxLives: number = 3;
+  public isInvincible: boolean = false;
+  private invincibilityTimer: number = 0;
+  private invincibilityDuration: number = 1.5; // seconds
+
   // Current Skin Colors
   private primaryColor: number = 0x00f0ff;
   private glowColor: number = 0x00ffff;
@@ -186,6 +193,21 @@ export class Player {
     }
   }
 
+  public resetLives(maxLives: number = 3) {
+    this.maxLives = maxLives;
+    this.lives = maxLives;
+    this.isInvincible = false;
+    this.invincibilityTimer = 0;
+    this.mesh.visible = true;
+  }
+
+  public takeDamage(amount: number = 1): number {
+    this.lives = Math.max(0, this.lives - amount);
+    this.isInvincible = true;
+    this.invincibilityTimer = this.invincibilityDuration;
+    return this.lives;
+  }
+
   public update(dt: number) {
     // 1. Smooth Lane Horizontal lerp
     this.currentX = lerp(this.currentX, this.targetX, dt * 18);
@@ -243,6 +265,18 @@ export class Player {
       }
     }
 
+    // 6. Invincibility i-frame Blinking Animation
+    if (this.isInvincible) {
+      this.invincibilityTimer -= dt;
+      const blinkFrequency = 14; // Blinks per second
+      this.mesh.visible = Math.floor(this.invincibilityTimer * blinkFrequency) % 2 === 0;
+
+      if (this.invincibilityTimer <= 0) {
+        this.isInvincible = false;
+        this.mesh.visible = true;
+      }
+    }
+
     this.updateBoundingBox();
   }
 
@@ -268,6 +302,9 @@ export class Player {
     this.isSliding = false;
     this.shieldActive = false;
     this.magnetActive = false;
+    this.isInvincible = false;
+    this.invincibilityTimer = 0;
+    this.mesh.visible = true;
     this.mesh.position.set(this.currentX, 0, 0);
   }
 }
