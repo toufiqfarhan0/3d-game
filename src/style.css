@@ -862,6 +862,90 @@ html, body {
   color: var(--yellow);
 }
 
+/* ===================== Start Credit Badge ===================== */
+.start-credit-badge {
+  margin-top: clamp(0.75rem, 1.8vh, 1.25rem);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 5px clamp(10px, 2.2vw, 15px);
+  background: rgba(15, 18, 40, 0.65);
+  border: 1.5px solid rgba(0, 212, 255, 0.28);
+  border-radius: 20px;
+  font-family: var(--f-body);
+  font-size: clamp(0.72rem, 1.8vw, 0.82rem);
+  color: var(--text-dim);
+  letter-spacing: 0.5px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow:
+    2px 2px 0 var(--outline),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  transition: all 0.25s var(--ease-pop);
+  pointer-events: auto;
+  user-select: auto;
+  -webkit-user-select: auto;
+}
+
+.start-credit-badge:hover {
+  border-color: var(--cyan);
+  background: rgba(24, 28, 54, 0.85);
+  box-shadow:
+    0 0 14px rgba(0, 212, 255, 0.3),
+    3px 3px 0 var(--outline);
+  transform: translateY(-1px);
+}
+
+.credit-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--cyan);
+  box-shadow: 0 0 7px var(--cyan);
+  animation: creditPulse 2s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+@keyframes creditPulse {
+  0%, 100% { opacity: 0.6; transform: scale(0.9); }
+  50%      { opacity: 1;   transform: scale(1.25); box-shadow: 0 0 10px var(--cyan); }
+}
+
+.credit-text {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  white-space: nowrap;
+}
+
+.credit-link {
+  color: var(--cyan);
+  font-weight: 700;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.credit-link:hover {
+  color: var(--yellow);
+  text-shadow: 0 0 8px rgba(255, 224, 51, 0.6);
+}
+
+.credit-link-arrow {
+  font-size: 0.85em;
+  line-height: 1;
+  display: inline-block;
+  transition: transform 0.2s ease;
+}
+
+.credit-link:hover .credit-link-arrow {
+  transform: translate(2px, -2px);
+}
+
 /* ===================== Pause Screen ===================== */
 .pause-card {
   max-width: 420px;
@@ -1351,6 +1435,34 @@ body.light-theme .btn-secondary:hover {
 }
 body.light-theme .btn-text-icon { color: var(--text-dim); }
 body.light-theme .btn-text-icon:hover { color: var(--yellow); }
+
+/* ---- Credit Badge ---- */
+body.light-theme .start-credit-badge {
+  background: rgba(255, 255, 255, 0.7);
+  border-color: rgba(0, 144, 192, 0.35);
+  color: var(--text-dim);
+  box-shadow: 2px 2px 0 var(--outline), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+body.light-theme .start-credit-badge:hover {
+  border-color: var(--cyan);
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 0 10px rgba(0, 144, 192, 0.25), 3px 3px 0 var(--outline);
+}
+
+body.light-theme .credit-dot {
+  background: var(--cyan);
+  box-shadow: 0 0 6px var(--cyan);
+}
+
+body.light-theme .credit-link {
+  color: var(--cyan);
+}
+
+body.light-theme .credit-link:hover {
+  color: var(--orange);
+  text-shadow: 0 0 8px rgba(208, 96, 0, 0.35);
+}
 
 /* ---- High score banner ---- */
 body.light-theme .high-score-banner {
