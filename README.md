@@ -1,4 +1,4 @@
-# Cyber Runner 3D ⚡
+# AO RUN ⚡
 
 [![Three.js](https://img.shields.io/badge/Three.js-r160-000000?style=for-the-badge&logo=three.js&logoColor=white)](https://threejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
@@ -12,7 +12,7 @@ An endless, high-octane **3D sci-fi runner game** built with **Three.js**, **Typ
 
 ## 🚀 Overview
 
-**Cyber Runner 3D** combines classic endless runner mechanics (lane shifting, jumping, sliding) with modern WebGL graphics, procedural track generation, dynamic lighting, and an interactive meme sound engine. The player controls a cybernetic runner traversing synthwave sectors that dynamically change visual themes, speed, and difficulty as distance increases.
+**AO RUN** combines classic endless runner mechanics (lane shifting, jumping, sliding) with modern WebGL graphics, procedural track generation, dynamic lighting, and an interactive meme sound engine. The player controls a cybernetic runner traversing synthwave sectors that dynamically change visual themes, speed, and difficulty as distance increases.
 
 ### Core Highlights
 - **Endless Procedural Track**: Infinite track segment generation with auto-recycling and sector theme color shifts every 400 meters.
@@ -77,7 +77,7 @@ Players can configure their desired difficulty on the Start Screen before runnin
 
 ## 🔊 Meme Sound Effects System & Web Audio API Engine
 
-Cyber Runner 3D features a dual-layer audio architecture: an **Interactive Meme Sound Effects System** and a **Web Audio API Procedural Synthesizer**.
+AO RUN features a dual-layer audio architecture: an **Interactive Meme Sound Effects System** and a **Web Audio API Procedural Synthesizer**.
 
 ### 10 Iconic Meme Sound Effects
 1. 🏃 **"RUN" Vine Meme**: High-energy panic cue.
