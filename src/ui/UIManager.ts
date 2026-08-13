@@ -1,9 +1,11 @@
 import { ScoreManager } from '../managers/ScoreManager';
 import { SoundManager } from '../audio/SoundManager';
+import { MenuParticles } from './MenuParticles';
 
 export class UIManager {
   private scoreMgr: ScoreManager;
   private soundMgr: SoundManager;
+  private menuParticles!: MenuParticles;
 
   public selectedLives: number = 3;
   public currentTheme: 'dark' | 'light' = 'dark';
@@ -61,6 +63,9 @@ export class UIManager {
     this.goCoins = document.getElementById('go-coins')!;
     this.goHits = document.getElementById('go-hits')!;
     this.goBest = document.getElementById('go-best')!;
+
+    this.menuParticles = new MenuParticles('menu-particles-canvas');
+    this.menuParticles.start();
 
     this.initLifeModeSelector();
     this.applyThemeUI();
@@ -137,6 +142,7 @@ export class UIManager {
     this.gameoverModal.classList.add('hidden');
     this.startScreen.classList.remove('hidden');
     this.updateStartScreen();
+    this.menuParticles?.start();
   }
 
   public showHUD() {
@@ -145,6 +151,7 @@ export class UIManager {
     this.gameoverModal.classList.add('hidden');
     this.hudOverlay.classList.remove('hidden');
     this.updateSoundUI();
+    this.menuParticles?.stop();
   }
 
   public showPauseModal() {
