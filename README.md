@@ -3,7 +3,6 @@
 [![Three.js](https://img.shields.io/badge/Three.js-r160-000000?style=for-the-badge&logo=three.js&logoColor=white)](https://threejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Vite](https://img.shields.io/badge/Vite-5.0-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
-[![Web Audio API](https://img.shields.io/badge/Web_Audio_API-Procedural-FF8800?style=for-the-badge&logo=webaudio&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API)
 [![AO Agents](https://img.shields.io/badge/Made_with-AO_Agents-00f0ff?style=for-the-badge&logo=robot&logoColor=black)](https://aoagents.dev/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](LICENSE)
 
@@ -22,7 +21,6 @@ An endless, high-octane **3D sci-fi runner game** built with **Three.js**, **Typ
 - **Zero-GC Performance Engine**: `SharedAssets` singleton, fixed 10-segment track pool, pre-allocated obstacle/collectible pools, $O(1)$ ring buffer particle system, capped `devicePixelRatio: 2`, and fast AABB collision math to maintain locked 60+ FPS.
 - **Tactical Cyberpunk HUD**: Military-grade glassmorphic panels with polygon clip-paths (`clip-path: polygon(...)`), segmented energy cell health indicators, dynamic power-up capsules, CRT scanline overlay, reticle crosshair, and zero-padded metric score display.
 - **Fully Responsive Design**: Fluid `clamp()` typography and container layouts adapting seamlessly across mobile (320px+), tablet (768px+), desktop (1024px+), and landscape viewports with `touch-action: manipulation` optimization.
-- **Customizable Life Modes**: Choose between **1 Core (Hardcore)**, **3 Cores (Standard)**, or **5 Cores (Overcharged)**.
 - **AO Branding**: Sleek footer badge crediting [AO (https://aoagents.dev/)](https://aoagents.dev/).
 
 ---
@@ -34,7 +32,6 @@ An endless, high-octane **3D sci-fi runner game** built with **Three.js**, **Typ
 | **Three.js (r160)** | 3D Graphics Engine | WebGL renderer, custom PBR materials, ACES Filmic Tone Mapping, directional shadow maps, exponential fog (`FogExp2`) |
 | **TypeScript (v5.3)** | Core Logic & Systems | Strict static typing, modular object-oriented architecture, zero-alloc event handlers |
 | **Vite (v5.0)** | Build Tool & Server | Instant HMR dev server, tree-shaken production bundling with ES modules |
-| **Web Audio API** | Procedural Audio | Zero-dependency synthesized audio (oscillators, envelopes, gain nodes, ambient synthwave loops) |
 | **Vanilla CSS3** | HUD & Tactical UI | CSS custom properties, backdrop-filter glassmorphism, polygon clip-paths, fluid `clamp()` responsive scaling |
 | **AO Agents Framework** | AI Orchestration | Multi-agent autonomous system engineering by [AO](https://aoagents.dev/) |
 
