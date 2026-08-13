@@ -7,7 +7,7 @@
 [![AO Agents](https://img.shields.io/badge/Made_with-AO_Agents-00f0ff?style=for-the-badge&logo=robot&logoColor=black)](https://aoagents.dev/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](LICENSE)
 
-An endless, high-octane **3D sci-fi runner game** built with **Three.js**, **TypeScript**, and **Vite**. Navigate high-speed elevated expressways, dodge realistic sci-fi obstacles and autonomous drones, collect energy data orbs, activate cyber upgrades, and experience ultra-smooth 60+ FPS gameplay.
+An endless, high-octane **3D sci-fi runner game** built with **Three.js**, **TypeScript**, and **Vite**. Navigate high-speed elevated expressways, dodge realistic sci-fi obstacles, collect energy data orbs, activate cyber upgrades, and experience ultra-smooth 60+ FPS gameplay.
 
 ---
 
@@ -18,7 +18,7 @@ An endless, high-octane **3D sci-fi runner game** built with **Three.js**, **Typ
 ### 🌟 Key Highlights
 - **Realistic 3D Expressway & Metropolis**: 3-lane PBR asphalt with division paint, concrete K-Rail Jersey barriers, elevated bridge substructure, overhead LED gantries, cobra-head streetlights, and glowing skyscraper facades.
 - **Articulated Exoskeleton Runner**: Modular character featuring carbon-fiber armor, spine vertebrae, gold reflective helmet visor, jetpack thrusters, realistic running mechanics, jump tucks, and slide friction sparks.
-- **Realistic Obstacles**: Construction barricades with active flashing amber strobes, overhead industrial steam pipes with clearance telltale bars, ISO shipping containers with twistlocks, and autonomous quad-rotor police drones with spinning blades and scanning light cones.
+- **Realistic Obstacles**: Construction barricades with active flashing amber strobes, overhead industrial steam pipes with clearance telltale bars, and ISO shipping containers with twistlocks.
 - **Zero-GC Performance Engine**: `SharedAssets` singleton, fixed 10-segment track pool, pre-allocated obstacle/collectible pools, $O(1)$ ring buffer particle system, capped `devicePixelRatio: 2`, and fast AABB collision math to maintain locked 60+ FPS.
 - **Tactical Cyberpunk HUD**: Military-grade glassmorphic panels with polygon clip-paths (`clip-path: polygon(...)`), segmented energy cell health indicators, dynamic power-up capsules, CRT scanline overlay, reticle crosshair, and zero-padded metric score display.
 - **Fully Responsive Design**: Fluid `clamp()` typography and container layouts adapting seamlessly across mobile (320px+), tablet (768px+), desktop (1024px+), and landscape viewports with `touch-action: manipulation` optimization.

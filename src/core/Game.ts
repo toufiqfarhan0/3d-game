@@ -199,6 +199,10 @@ export class Game {
 
     // Bind Mobile Touch Buttons
     this.inputMgr.bindTouchButtons('touch-left', 'touch-right', 'touch-jump', 'touch-slide');
+
+    // Pre-warm audio and pre-compile scene shaders for zero initial hitch
+    this.soundMgr.prewarm();
+    this.renderer.compile(this.scene, this.cameraMgr.camera);
   }
 
   private bindEvents() {
@@ -272,6 +276,16 @@ export class Game {
     this.uiMgr.updateLives(this.player.lives, this.player.maxLives);
 
     this.trackMgr.initTrack();
+    this.particleMgr.clear();
+    this.cameraMgr.reset(this.player.mesh.position);
+
+    if (this.dirLight) {
+      this.dirLight.position.set(12, 30, 15);
+      this.dirLight.target = this.player.mesh;
+    }
+    if (this.groundMesh) {
+      this.groundMesh.position.set(0, -0.05, 1000);
+    }
 
     this.uiMgr.showHUD();
     this.soundMgr.startMusic();
@@ -411,19 +425,17 @@ export class Game {
       if (colZ < currPlayerZ - 2 || colZ > currPlayerZ + 8) continue;
 
       if (checkAABBCollision(this.player.boundingBox, col.boundingBox)) {
-        const colPos = col.mesh.position.clone();
         const colType = col.type;
         this.trackMgr.recycleCollectible(col);
 
         if (colType === 'ORB') {
           this.scoreMgr.addOrb(1);
           this.soundMgr.playCoin();
-          this.particleMgr.spawnBurst(colPos, 0xffaa00, 14);
         } else {
+          this.particleMgr.spawnBurst(col.mesh.position, 0x00f0ff, 25);
           const duration = this.shopMgr.getPowerupDuration(colType as any);
           this.scoreMgr.activatePowerup(colType as any, duration);
           this.soundMgr.playPowerup();
-          this.particleMgr.spawnBurst(colPos, 0x00f0ff, 25);
         }
       }
     }

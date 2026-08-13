@@ -9,7 +9,7 @@ export class ObstaclePool {
 
   constructor(scene: THREE.Scene, initialPerType: number = 8) {
     this.scene = scene;
-    const types: ObstacleType[] = ['LOW_BARRIER', 'HIGH_GATE', 'FULL_BLOCK', 'MOVING_DRONE'];
+    const types: ObstacleType[] = ['LOW_BARRIER', 'HIGH_GATE', 'FULL_BLOCK'];
 
     types.forEach(type => {
       const list: Obstacle[] = [];
@@ -71,6 +71,6 @@ export class ObstaclePool {
     for (let i = 0; i < this.allObstacles.length; i++) {
       this.allObstacles[i].recycle();
     }
-    this.activeObstacles = [];
+    this.activeObstacles.length = 0;
   }
 }

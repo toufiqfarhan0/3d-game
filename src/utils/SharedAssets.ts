@@ -49,12 +49,6 @@ export class SharedAssets {
   public containerCornerGeo!: THREE.BoxGeometry;
   public containerRodGeo!: THREE.CylinderGeometry;
   public containerTopBarGeo!: THREE.BoxGeometry;
-  public droneBodyGeo!: THREE.CylinderGeometry;
-  public dronePodGeo!: THREE.SphereGeometry;
-  public droneArmGeo!: THREE.CylinderGeometry;
-  public droneMotorGeo!: THREE.CylinderGeometry;
-  public dronePropGeo!: THREE.BoxGeometry;
-  public droneLightBeamGeo!: THREE.ConeGeometry;
 
   // ── Collectible Geometries ──
   public orbCoreGeo!: THREE.SphereGeometry;
@@ -92,10 +86,6 @@ export class SharedAssets {
   public pipeMat!: THREE.MeshStandardMaterial;
   public containerMats: Record<string, THREE.MeshStandardMaterial> = {};
   public containerCornerMat!: THREE.MeshStandardMaterial;
-  public droneBodyMat!: THREE.MeshStandardMaterial;
-  public dronePodMat!: THREE.MeshStandardMaterial;
-  public dronePropMat!: THREE.MeshBasicMaterial;
-  public droneLightBeamMat!: THREE.MeshBasicMaterial;
   public amberBeaconOnMat!: THREE.MeshBasicMaterial;
   public amberBeaconOffMat!: THREE.MeshBasicMaterial;
 
@@ -183,13 +173,6 @@ export class SharedAssets {
     this.containerRodGeo = new THREE.CylinderGeometry(0.03, 0.03, 2.2, 6);
     this.containerTopBarGeo = new THREE.BoxGeometry(2.38, 0.15, 0.15);
 
-    this.droneBodyGeo = new THREE.CylinderGeometry(0.35, 0.45, 0.4, 6);
-    this.dronePodGeo = new THREE.SphereGeometry(0.22, 8, 8);
-    this.droneArmGeo = new THREE.CylinderGeometry(0.04, 0.04, 0.9, 5);
-    this.droneMotorGeo = new THREE.CylinderGeometry(0.12, 0.12, 0.18, 6);
-    this.dronePropGeo = new THREE.BoxGeometry(0.7, 0.02, 0.08);
-    this.droneLightBeamGeo = new THREE.ConeGeometry(0.6, 1.4, 10, 1, true);
-
     // Collectibles
     this.orbCoreGeo = new THREE.SphereGeometry(0.28, 10, 10);
     this.orbRingGeo = new THREE.TorusGeometry(0.48, 0.04, 6, 16);
@@ -269,15 +252,6 @@ export class SharedAssets {
     });
 
     this.containerCornerMat = new THREE.MeshStandardMaterial({ color: 0x18181b, metalness: 0.95, roughness: 0.2 });
-    this.droneBodyMat = new THREE.MeshStandardMaterial({ color: 0x18181b, metalness: 0.9, roughness: 0.2 });
-    this.dronePodMat = new THREE.MeshStandardMaterial({ color: 0x0284c7, metalness: 0.95, roughness: 0.1 });
-    this.dronePropMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
-    this.droneLightBeamMat = new THREE.MeshBasicMaterial({
-      color: 0x38bdf8,
-      transparent: true,
-      opacity: 0.22,
-      side: THREE.DoubleSide,
-    });
     this.amberBeaconOnMat = new THREE.MeshBasicMaterial({ color: 0xf59e0b });
     this.amberBeaconOffMat = new THREE.MeshBasicMaterial({ color: 0x451a03 });
 
