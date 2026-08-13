@@ -8,7 +8,6 @@ export interface UpgradeLevel {
 
 export class ShopManager {
   public upgrades = {
-    magnet: { level: 1, maxLevel: 5, baseCost: 50 },
     shield: { level: 1, maxLevel: 5, baseCost: 75 },
     multiplier: { level: 1, maxLevel: 5, baseCost: 100 }
   };
@@ -53,17 +52,17 @@ export class ShopManager {
     localStorage.setItem('cyber_runner_skins', JSON.stringify(skinState));
   }
 
-  public getUpgradeCost(type: 'magnet' | 'shield' | 'multiplier'): number {
+  public getUpgradeCost(type: 'shield' | 'multiplier'): number {
     const item = this.upgrades[type];
     return item.baseCost * item.level;
   }
 
-  public canUpgrade(type: 'magnet' | 'shield' | 'multiplier', currentCoins: number): boolean {
+  public canUpgrade(type: 'shield' | 'multiplier', currentCoins: number): boolean {
     const item = this.upgrades[type];
     return item.level < item.maxLevel && currentCoins >= this.getUpgradeCost(type);
   }
 
-  public upgrade(type: 'magnet' | 'shield' | 'multiplier', scoreMgr: any): boolean {
+  public upgrade(type: 'shield' | 'multiplier', scoreMgr: any): boolean {
     if (this.canUpgrade(type, scoreMgr.totalCoinsOwned)) {
       const cost = this.getUpgradeCost(type);
       scoreMgr.totalCoinsOwned -= cost;
@@ -94,7 +93,7 @@ export class ShopManager {
     return this.skins.find(s => s.equipped) || this.skins[0];
   }
 
-  public getPowerupDuration(type: 'magnet' | 'shield' | 'multiplier'): number {
+  public getPowerupDuration(type: 'shield' | 'multiplier'): number {
     const baseDuration = type === 'shield' ? 1 : 8;
     return baseDuration + (this.upgrades[type].level - 1) * 2.5;
   }

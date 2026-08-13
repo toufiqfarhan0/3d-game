@@ -1,5 +1,5 @@
 export interface ActivePowerup {
-  type: 'MAGNET' | 'SHIELD' | 'MULTIPLIER';
+  type: 'SHIELD' | 'MULTIPLIER';
   duration: number;
   maxDuration: number;
 }
@@ -48,7 +48,7 @@ export class ScoreManager {
     this.saveToStorage();
   }
 
-  public activatePowerup(type: 'MAGNET' | 'SHIELD' | 'MULTIPLIER', durationSec: number) {
+  public activatePowerup(type: 'SHIELD' | 'MULTIPLIER', durationSec: number) {
     this.activePowerups.set(type, {
       type,
       duration: durationSec,
@@ -60,7 +60,7 @@ export class ScoreManager {
     }
   }
 
-  public hasPowerup(type: 'MAGNET' | 'SHIELD' | 'MULTIPLIER'): boolean {
+  public hasPowerup(type: 'SHIELD' | 'MULTIPLIER'): boolean {
     return this.activePowerups.has(type);
   }
 

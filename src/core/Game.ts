@@ -139,7 +139,7 @@ export class Game {
     document.getElementById('btn-close-shop')?.addEventListener('click', () => this.uiMgr.closeShopModal());
 
     // Upgrades Purchases
-    const bindUpgBtn = (type: 'magnet' | 'shield' | 'multiplier') => {
+    const bindUpgBtn = (type: 'shield' | 'multiplier') => {
       document.getElementById(`btn-upg-${type}`)?.addEventListener('click', () => {
         if (this.shopMgr.upgrade(type, this.scoreMgr)) {
           this.soundMgr.playPowerup();
@@ -147,7 +147,6 @@ export class Game {
         }
       });
     };
-    bindUpgBtn('magnet');
     bindUpgBtn('shield');
     bindUpgBtn('multiplier');
 
@@ -241,23 +240,9 @@ export class Game {
 
     // Update active powerups state on player
     this.player.shieldActive = this.scoreMgr.hasPowerup('SHIELD');
-    this.player.magnetActive = this.scoreMgr.hasPowerup('MAGNET');
 
     // 3. Track Manager update (recycling segments & spawning)
     this.trackMgr.update(this.player.mesh.position.z, dt);
-
-    // 4. Magnet Attractor Logic
-    if (this.player.magnetActive) {
-      const magRadiusSq = this.player.magnetRadius * this.player.magnetRadius;
-      this.trackMgr.collectibles.forEach(col => {
-        if (col.active && col.type === 'ORB') {
-          const distSq = col.mesh.position.distanceToSquared(this.player.mesh.position);
-          if (distSq < magRadiusSq) {
-            col.mesh.position.lerp(this.player.mesh.position, dt * 10);
-          }
-        }
-      });
-    }
 
     // 5. Collision Checks: Player vs Obstacles
     this.trackMgr.obstacles.forEach(obs => {
