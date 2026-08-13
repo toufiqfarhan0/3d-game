@@ -8,6 +8,8 @@ export class UIManager {
   private shopMgr: ShopManager;
   private soundMgr: SoundManager;
 
+  public selectedLives: number = 3;
+
   // DOM Elements
   private hudOverlay: HTMLElement;
   private hudScore: HTMLElement;
@@ -16,6 +18,8 @@ export class UIManager {
   private hudCoins: HTMLElement;
   private hudPowerups: HTMLElement;
   private levelBadge: HTMLElement;
+  private hudLivesContainer: HTMLElement;
+  private damageFlash: HTMLElement;
 
   private startScreen: HTMLElement;
   private shopModal: HTMLElement;
@@ -28,6 +32,7 @@ export class UIManager {
   private goScore: HTMLElement;
   private goDist: HTMLElement;
   private goCoins: HTMLElement;
+  private goHits: HTMLElement;
   private goBest: HTMLElement;
 
   constructor(scoreMgr: ScoreManager, shopMgr: ShopManager, soundMgr: SoundManager) {
@@ -42,6 +47,8 @@ export class UIManager {
     this.hudCoins = document.getElementById('hud-coins-val')!;
     this.hudPowerups = document.getElementById('hud-powerups')!;
     this.levelBadge = document.getElementById('level-badge')!;
+    this.hudLivesContainer = document.getElementById('hud-lives-container')!;
+    this.damageFlash = document.getElementById('damage-flash')!;
 
     this.startScreen = document.getElementById('start-screen')!;
     this.shopModal = document.getElementById('shop-modal')!;
@@ -54,9 +61,11 @@ export class UIManager {
     this.goScore = document.getElementById('go-score')!;
     this.goDist = document.getElementById('go-dist')!;
     this.goCoins = document.getElementById('go-coins')!;
+    this.goHits = document.getElementById('go-hits')!;
     this.goBest = document.getElementById('go-best')!;
 
     this.initShopTabs();
+    this.initLifeModeSelector();
     this.updateStartScreen();
   }
 
@@ -95,13 +104,48 @@ export class UIManager {
     this.pauseModal.classList.add('hidden');
   }
 
-  public showGameOverModal(isNewHighScore: boolean) {
+  private initLifeModeSelector() {
+    const btns = document.querySelectorAll('.life-btn');
+    btns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        btns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const livesVal = parseInt(btn.getAttribute('data-lives') || '3', 10);
+        this.selectedLives = livesVal;
+      });
+    });
+  }
+
+  public updateLives(currentLives: number, maxLives: number) {
+    if (!this.hudLivesContainer) return;
+    this.hudLivesContainer.innerHTML = '';
+    for (let i = 0; i < maxLives; i++) {
+      const heart = document.createElement('span');
+      const isAlive = i < currentLives;
+      heart.className = `heart-icon ${isAlive ? 'active' : 'lost'}`;
+      heart.textContent = '❤️';
+      this.hudLivesContainer.appendChild(heart);
+    }
+  }
+
+  public flashDamageScreen() {
+    if (!this.damageFlash) return;
+    this.damageFlash.classList.add('flash-active');
+    setTimeout(() => {
+      this.damageFlash.classList.remove('flash-active');
+    }, 150);
+  }
+
+  public showGameOverModal(isNewHighScore: boolean, hitsTaken: number = 3) {
     this.hudOverlay.classList.add('hidden');
     this.gameoverModal.classList.remove('hidden');
 
     this.goScore.textContent = String(Math.floor(this.scoreMgr.score));
     this.goDist.textContent = `${this.scoreMgr.distance}m`;
     this.goCoins.textContent = String(this.scoreMgr.coins);
+    if (this.goHits) {
+      this.goHits.textContent = `${hitsTaken} / ${this.selectedLives}`;
+    }
     this.goBest.textContent = String(this.scoreMgr.highScore);
 
     if (isNewHighScore) {
