@@ -1,11 +1,8 @@
 import { ScoreManager } from '../managers/ScoreManager';
-import { ShopManager } from '../managers/ShopManager';
 import { SoundManager } from '../audio/SoundManager';
-import { Player } from '../entities/Player';
 
 export class UIManager {
   private scoreMgr: ScoreManager;
-  private shopMgr: ShopManager;
   private soundMgr: SoundManager;
 
   public selectedLives: number = 3;
@@ -23,22 +20,19 @@ export class UIManager {
   private damageFlash: HTMLElement;
 
   private startScreen: HTMLElement;
-  private shopModal: HTMLElement;
   private pauseModal: HTMLElement;
   private gameoverModal: HTMLElement;
   private newRecordTag: HTMLElement;
 
   private startHighScore: HTMLElement;
-  private shopCoins: HTMLElement;
   private goScore: HTMLElement;
   private goDist: HTMLElement;
   private goCoins: HTMLElement;
   private goHits: HTMLElement;
   private goBest: HTMLElement;
 
-  constructor(scoreMgr: ScoreManager, shopMgr: ShopManager, soundMgr: SoundManager) {
+  constructor(scoreMgr: ScoreManager, soundMgr: SoundManager) {
     this.scoreMgr = scoreMgr;
-    this.shopMgr = shopMgr;
     this.soundMgr = soundMgr;
 
     const savedTheme = localStorage.getItem('cyber_runner_theme');
@@ -57,20 +51,17 @@ export class UIManager {
     this.damageFlash = document.getElementById('damage-flash')!;
 
     this.startScreen = document.getElementById('start-screen')!;
-    this.shopModal = document.getElementById('shop-modal')!;
     this.pauseModal = document.getElementById('pause-modal')!;
     this.gameoverModal = document.getElementById('gameover-modal')!;
     this.newRecordTag = document.getElementById('new-highscore-tag')!;
 
     this.startHighScore = document.getElementById('start-high-score')!;
-    this.shopCoins = document.getElementById('shop-coin-count')!;
     this.goScore = document.getElementById('go-score')!;
     this.goDist = document.getElementById('go-dist')!;
     this.goCoins = document.getElementById('go-coins')!;
     this.goHits = document.getElementById('go-hits')!;
     this.goBest = document.getElementById('go-best')!;
 
-    this.initShopTabs();
     this.initLifeModeSelector();
     this.applyThemeUI();
     this.updateStartScreen();
@@ -127,7 +118,6 @@ export class UIManager {
     this.hudOverlay.classList.add('hidden');
     this.pauseModal.classList.add('hidden');
     this.gameoverModal.classList.add('hidden');
-    this.shopModal.classList.add('hidden');
     this.startScreen.classList.remove('hidden');
     this.updateStartScreen();
   }
@@ -136,7 +126,6 @@ export class UIManager {
     this.startScreen.classList.add('hidden');
     this.pauseModal.classList.add('hidden');
     this.gameoverModal.classList.add('hidden');
-    this.shopModal.classList.add('hidden');
     this.hudOverlay.classList.remove('hidden');
   }
 
@@ -197,16 +186,6 @@ export class UIManager {
     } else {
       this.newRecordTag.classList.add('hidden');
     }
-  }
-
-  public openShopModal(player: Player) {
-    this.shopModal.classList.remove('hidden');
-    this.renderShopUI(player);
-  }
-
-  public closeShopModal() {
-    this.shopModal.classList.add('hidden');
-    this.updateStartScreen();
   }
 
   private _lastScore: number = -1;
@@ -288,85 +267,6 @@ export class UIManager {
           child.remove();
         }
       }
-    }
-  }
-
-  private initShopTabs() {
-    const tabs = document.querySelectorAll('.shop-tab');
-    tabs.forEach(tab => {
-      tab.addEventListener('click', () => {
-        tabs.forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-
-        const target = tab.getAttribute('data-tab');
-        document.querySelectorAll('.shop-tab-content').forEach(c => c.classList.remove('active'));
-        document.getElementById(`tab-${target}`)?.classList.add('active');
-      });
-    });
-  }
-
-  public renderShopUI(player: Player) {
-    this.shopCoins.textContent = String(this.scoreMgr.totalCoinsOwned);
-
-    // Update upgrade buttons state & bars
-    const updateCard = (type: 'shield' | 'multiplier') => {
-      const upg = this.shopMgr.upgrades[type];
-      const barContainer = document.getElementById(`lvl-bar-${type}`);
-      const btn = document.getElementById(`btn-upg-${type}`) as HTMLButtonElement;
-
-      if (barContainer) {
-        barContainer.innerHTML = '';
-        for (let i = 1; i <= upg.maxLevel; i++) {
-          const bar = document.createElement('span');
-          bar.className = `bar ${i <= upg.level ? 'fill' : ''}`;
-          barContainer.appendChild(bar);
-        }
-      }
-
-      if (btn) {
-        if (upg.level >= upg.maxLevel) {
-          btn.innerHTML = `<span class="upg-lbl">MAX LEVEL</span>`;
-          btn.disabled = true;
-        } else {
-          const cost = this.shopMgr.getUpgradeCost(type);
-          btn.innerHTML = `<span class="price-val">${cost} Orbs</span><span class="upg-lbl">UPGRADE</span>`;
-          btn.disabled = !this.shopMgr.canUpgrade(type, this.scoreMgr.totalCoinsOwned);
-        }
-      }
-    };
-
-    updateCard('shield');
-    updateCard('multiplier');
-
-    // Render Skins Grid
-    const skinsContainer = document.getElementById('skins-container');
-    if (skinsContainer) {
-      skinsContainer.innerHTML = '';
-      this.shopMgr.skins.forEach(skin => {
-        const card = document.createElement('div');
-        card.className = `skin-card ${skin.equipped ? 'equipped' : ''}`;
-
-        card.innerHTML = `
-          <div class="skin-preview-swatch" style="background-color: #${skin.primaryColor.toString(16).padStart(6, '0')}; color: #${skin.glowColor.toString(16).padStart(6, '0')};"></div>
-          <div class="skin-name">${skin.name}</div>
-          <button class="btn btn-sm ${skin.equipped ? 'btn-secondary' : 'btn-primary'}" ${skin.equipped ? 'disabled' : ''}>
-            ${skin.equipped ? 'EQUIPPED' : 'EQUIP'}
-          </button>
-        `;
-
-        const btn = card.querySelector('button');
-        if (btn && !skin.equipped) {
-          btn.addEventListener('click', () => {
-            const equipped = this.shopMgr.equipSkin(skin.id);
-            if (equipped) {
-              player.setSkin(equipped.primaryColor, equipped.glowColor);
-            }
-            this.renderShopUI(player);
-          });
-        }
-
-        skinsContainer.appendChild(card);
-      });
     }
   }
 }

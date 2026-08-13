@@ -124,7 +124,7 @@ export class Game {
 
     this.trackMgr = new TrackManager(this.scene);
     this.particleMgr = new ParticleManager(this.scene);
-    this.uiMgr = new UIManager(this.scoreMgr, this.shopMgr, this.soundMgr);
+    this.uiMgr = new UIManager(this.scoreMgr, this.soundMgr);
 
     // Apply saved theme to 3D scene
     this.setTheme(this.uiMgr.currentTheme);
@@ -160,23 +160,6 @@ export class Game {
     document.getElementById('btn-pause-hud')?.addEventListener('click', () => this.pauseGame());
     document.getElementById('btn-resume-game')?.addEventListener('click', () => this.resumeGame());
     document.getElementById('btn-quit-main')?.addEventListener('click', () => this.quitToMain());
-
-    // Shop Buttons
-    document.getElementById('btn-open-shop')?.addEventListener('click', () => this.uiMgr.openShopModal(this.player));
-    document.getElementById('btn-gameover-shop')?.addEventListener('click', () => this.uiMgr.openShopModal(this.player));
-    document.getElementById('btn-close-shop')?.addEventListener('click', () => this.uiMgr.closeShopModal());
-
-    // Upgrades Purchases
-    const bindUpgBtn = (type: 'shield' | 'multiplier') => {
-      document.getElementById(`btn-upg-${type}`)?.addEventListener('click', () => {
-        if (this.shopMgr.upgrade(type, this.scoreMgr)) {
-          this.soundMgr.playPowerup();
-          this.uiMgr.renderShopUI(this.player);
-        }
-      });
-    };
-    bindUpgBtn('shield');
-    bindUpgBtn('multiplier');
 
     // Sound Toggle
     document.getElementById('btn-toggle-sound')?.addEventListener('click', () => {
